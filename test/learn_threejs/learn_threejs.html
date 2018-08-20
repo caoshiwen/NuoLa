@@ -1,0 +1,132 @@
+<!DOCTYPE html>
+<html style="width: 100%;height: 100%;">
+
+<head>
+    <meta charset="utf-8" />
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <title>My threejs App</title>
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <link rel="stylesheet" href="css/reset.css">
+    <style>
+        * {
+            padding: 0;
+            margin: 0;
+        }
+    </style>
+</head>
+
+<body style="width: 100%;height: 100%;">
+    <script src="js/three.min.js"></script>
+    <script src="js/OrbitControls.js"></script>
+    <script src="js/Detector.js"></script>
+    <script src="js/GLTFLoader.js"></script>
+    <!-- <script src="js/ImageLoader.js"></script> -->
+    <script>
+        // scene
+        let scene = new THREE.Scene();
+        //camera
+        let camera = new THREE.PerspectiveCamera(75,
+            window.innerWidth / window.innerHeight, 0.1, 1000);
+        let controls = new THREE.OrbitControls(camera);
+        //renderer
+        let renderer = new THREE.WebGLRenderer();
+        renderer.setSize(window.innerWidth, window.innerHeight);
+        document.body.appendChild(renderer.domElement);
+
+        let geometry = new THREE.BoxGeometry(10, 10, 10);
+        // let material = new THREE.MeshBasicMaterial({ color: 0x00ff00 });
+        var light = new THREE.DirectionalLight(0xffffff);
+        light.position.set(0, 1, 1).normalize();
+        scene.add(light);
+        let material = new THREE.MeshPhongMaterial({ map: THREE.ImageUtils.loadTexture('img/texture-atlas.jpg') });
+        var bricks = [new THREE.Vector2(0, .666), new THREE.Vector2(.5, .666), new THREE.Vector2(.5, 1), new THREE.Vector2(0, 1)];
+        var clouds = [new THREE.Vector2(.5, .666), new THREE.Vector2(1, .666), new THREE.Vector2(1, 1), new THREE.Vector2(.5, 1)];
+        var crate = [new THREE.Vector2(0, .333), new THREE.Vector2(.5, .333), new THREE.Vector2(.5, .666), new THREE.Vector2(0, .666)];
+        var stone = [new THREE.Vector2(.5, .333), new THREE.Vector2(1, .333), new THREE.Vector2(1, .666), new THREE.Vector2(.5, .666)];
+        var water = [new THREE.Vector2(0, 0), new THREE.Vector2(.5, 0), new THREE.Vector2(.5, .333), new THREE.Vector2(0, .333)];
+        var wood = [new THREE.Vector2(.5, 0), new THREE.Vector2(1, 0), new THREE.Vector2(1, .333), new THREE.Vector2(.5, .333)];
+        geometry.faceVertexUvs[0] = [];
+
+        geometry.faceVertexUvs[0][0] = [bricks[0], bricks[1], bricks[3]];
+        geometry.faceVertexUvs[0][1] = [bricks[1], bricks[2], bricks[3]];
+
+        geometry.faceVertexUvs[0][2] = [clouds[0], clouds[1], clouds[3]];
+        geometry.faceVertexUvs[0][3] = [clouds[1], clouds[2], clouds[3]];
+
+        geometry.faceVertexUvs[0][4] = [crate[0], crate[1], crate[3]];
+        geometry.faceVertexUvs[0][5] = [crate[1], crate[2], crate[3]];
+
+        geometry.faceVertexUvs[0][6] = [stone[0], stone[1], stone[3]];
+        geometry.faceVertexUvs[0][7] = [stone[1], stone[2], stone[3]];
+
+        geometry.faceVertexUvs[0][8] = [water[0], water[1], water[3]];
+        geometry.faceVertexUvs[0][9] = [water[1], water[2], water[3]];
+
+        geometry.faceVertexUvs[0][10] = [wood[0], wood[1], wood[3]];
+        geometry.faceVertexUvs[0][11] = [wood[1], wood[2], wood[3]];
+
+        let cube = new THREE.Mesh(geometry, material);
+        // cube.position.z = -50;
+        scene.add(cube);
+
+        let geometry_1 = new THREE.Geometry();
+        let material_1 = new THREE.LineBasicMaterial({ color: 0x0000ff });
+        geometry_1.vertices.push(new THREE.Vector3(-10, 0, 0));
+        geometry_1.vertices.push(new THREE.Vector3(0, 10, 0));
+        geometry_1.vertices.push(new THREE.Vector3(10, 0, 0));
+        let line = new THREE.Line(geometry_1, material_1);
+        scene.add(line);
+        // By default, when we call scene.add(), 
+        // the thing we add will be added to the coordinates (0,0,0). 
+        // This would cause both the camera and the cube to be inside each other. 
+        // To avoid this, we simply move the camera out a bit.
+        const cz = 100;
+        camera.position.z = cz;
+        controls.update();
+        //we're not actually rendering anything yet. 
+        //For that, we need what's called a render or animate loop.
+        var mouseX = 0;
+        var mouseY = 0;
+        var x = 0, z = 0;
+        function animate() {
+            requestAnimationFrame(animate);
+            // cube.rotation.x += 0.01;
+            // cube.rotation.y += 0.01;
+            /**
+            let l = mouseX;
+            let c = l/cz;
+            let a = cz * Math.sin(c/2) * 2;
+            z = cz - a*Math.sin(c/2);
+            x = a*Math.cos(c/2);
+            camera.position.x = -x;
+            camera.position.z = z;
+            console.log(x);
+            console.log(z);
+            **/
+            // camera.position.x += (x - camera.position.x) * .05;
+            // camera.position.z += (z - camera.position.z) * .05;
+            // camera.lookAt(scene.position);
+            // renderer.clear();
+            controls.update();
+            renderer.render(scene, camera);
+        }
+        // The following method allows you to check 
+        // if it is supported and display a message to the user if it is not
+        if (Detector.webgl) {
+            animate();
+        } else {
+            let warning = Detector.getWebGLErrorMessage();
+            document.getElementById("container").appendChild(warning);
+        }
+        let windowHalfX = window.innerWidth / 2;
+        let windowHalfY = window.innerHeight / 2;
+        function onDocumentMouseMove(event) {
+            mouseX = (event.clientX - windowHalfX);
+            mouseY = (event.clientY - windowHalfY);
+        }
+        document.addEventListener('mousemove', onDocumentMouseMove, false);
+        // document.addEventListener('mousemove', onDocumentMouseMove, false);
+    </script>
+</body>
+
+</html>

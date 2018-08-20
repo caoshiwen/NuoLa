@@ -1,0 +1,110 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <title>Document</title>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+</head>
+
+<body>
+    <!-- 计算属性 -->
+    <div id="example">
+        <p @click="doMessageComputed">{{isComputed?reversedMessage:message}}</p>
+        <input v-model.number="age" type="number">
+    </div>
+    <ul id="example-1">
+        <li v-for="item in items">
+            {{ item.message }}
+        </li>
+    </ul>
+    <script>
+        var vm = new Vue({
+            el: "#example",
+            data: {
+                message: "hello world",
+                isComputed: true,
+                age: 12
+            },
+            computed: {
+                // only message changed, result will change
+                reversedMessage: function () {
+                    return this.message.split("").reverse().join("");
+                },
+            },
+            methods: {
+                doMessageComputed: function () {
+                    this.isComputed = !this.isComputed;
+                }
+            }
+        });
+        //v-if
+        //v-else-if
+        //v-show
+        //v-bind:class="{active:isActive}"//[active,color]
+        //v-bind:type="{color:avticeColor,fontSize:fontSize+'px'}"
+        //v-for="(item,index) in items" // in or of
+        //v-for="(v,k,i) in object"//value key index
+        //:key always used in v-for
+
+        //vm.$set & Vue.set(object,index or key, newvalue)
+
+        var example1 = new Vue({
+            el: '#example-1',
+            data: {
+                items: [
+                    { message: 'Foo' },
+                    { message: 'Bar' }
+                ]
+            }
+        })
+    </script>
+
+    <!-- 组件 -->
+    <div id="components-demo">
+        <button-counter name="me"></button-counter>
+        <button-counter name="others"></button-counter>
+        <blog-post v-for="postd in posts" v-bind:key="postd.id" v-bind:post="postd"></blog-post>
+    </div>
+    <script src="a.js"></script>
+    <script>
+        // Vue.component("button-counter", {
+        //     data: function () {
+        //         return {
+        //             count: 0
+        //         }
+        //     },
+        //     props: [
+        //         'name'
+        //     ],
+        //     template: "<button @click='count++'>you click {{name}} {{count}} times.</button>"
+        // });
+        Vue.component('blog-post', {
+            props: ['post'],
+            template: `
+                <div class="blog-post">
+                    <h3>{{ post.title }}</h3>
+                    <div v-html="post.content"></div>
+                    <div v-html="post.other"></div>
+                </div>
+            `
+        });
+        let vm_c = new Vue({
+            el: "#components-demo",
+            components: {
+                "button-counter" : a
+            },
+            data: {
+                posts: [
+                    { id: 1, title: 'My journey with Vue' ,content:'123',other:'456'},
+                    { id: 2, title: 'Blogging with Vue' },
+                    { id: 3, title: 'Why Vue is so fun' }
+                ]
+            }
+        });
+    </script>
+</body>
+
+</html>
