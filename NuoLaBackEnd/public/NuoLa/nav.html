@@ -1,0 +1,96 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta http-equiv="X-UA-Compatible" content="ie=edge">
+    <link rel="stylesheet" href="https://unpkg.com/element-ui@2.4.6/lib/theme-chalk/index.css">
+    <link rel="stylesheet" href="css/common.css">
+    <title>诺拉服饰</title>
+</head>
+
+<body>
+    <!-- <nav id="nav" class="common-nav" @mouseleave="navMouseOutFn">
+        <div class="nav-innerwrap">
+            <div class="nav-left">
+                <div class="nav-logo"></div>
+                <div class="nav-items">
+                    <span class="nav-items-title" :style="{color:children.nowc}" v-for="(children,key,index) in items" @mouseover="navItemsShow(key)">{{key}}</span>
+                    <transition name="ts-fade" v-for="(children,key,index) in items">
+                        <div class="nav-items-list" v-show="key==show_items_list">
+                            <div class="nav-items-list-block" v-for="(child,ke,inde) in children.v">
+                                <a href="#" class="nav-items-list-block-title" :style="{color:children.c}">{{ke}}</a>
+                                <a href="#" class="nav-items-list-block-item" v-for="chil in child">{{chil}}</a>
+                            </div>
+                        </div>
+                    </transition>
+                </div>
+            </div>
+            <div class="nav-right">
+                <a class="nav-right-btn" href="#">MY ACCOUNT</a>
+                <a class="nav-right-btn" href="#" v-if="login_status === 'LOGIN'">LOGIN</a>
+                <a class="nav-right-btn" href="#" v-else>LOGOUT</a>
+                <a class="nav-right-btn" href="#">
+                    <span class="el-icon-goods"></span>
+                    ({{cart_goods}})
+                </a>
+            </div>
+        </div>
+    </nav> -->
+    <div id="nav">
+        <common-nav></common-nav>
+    </div>
+    <script src="https://cdn.jsdelivr.net/npm/vue@2.5.17/dist/vue.js"></script>
+    <script src="https://unpkg.com/element-ui@2.4.6/lib/index.js"></script>
+    <script src="components/components.js"></script>
+    <script>
+        let nav = new Vue({
+            el: "#nav",
+            // data: function () {
+            //     return {
+            //         items: {
+            //             "SHOP": {
+            //                 v: {
+            //                     "CLOTHING": ["Legging", "Yoga Leggings", "Capris", "Yoga Capris", "Shorts"],
+            //                     "PILLOW CASES": ["18\" x 18\" Pillow Case", "22\" x 22\" Pillow Case", "24\" x 24\" Pillow Case", "20\" x 24\" Pillow Case"]
+            //                 }, c: "#ec407a", nowc: "#fff"
+            //             },
+            //             "CREATE": {
+            //                 v: {
+            //                     "CLOTHING": ["Legging", "Yoga Leggings", "Capris", "Yoga Capris", "Shorts"],
+            //                     "PILLOW CASES": ["18\" x 18\" Pillow Case", "22\" x 22\" Pillow Case", "24\" x 24\" Pillow Case", "20\" x 24\" Pillow Case"]
+            //                 }, c: "#1e88e5", nowc: "#fff"
+            //             }
+            //         },
+            //         show_items_list: "",
+            //         common_c: "#fff",
+            //         login_status: "LOGIN",
+            //         cart_goods: 0
+            //     };
+            // },
+            // methods: {
+            //     navItemsShow: function (key) {
+            //         this.navMouseOutFn();
+            //         this.show_items_list = key;
+            //         this.items[key].nowc = this.items[key].c;
+            //     },
+            //     navMouseOutFn: function () {
+            //         this.show_items_list = "";
+            //         for (let key in this.items) {
+            //             this.items[key].nowc = this.common_c;
+            //         }
+
+            //     }
+            // },
+            // computed: {
+
+            // },
+            components: {
+                "common-nav": common_nav
+            }
+        });
+    </script>
+</body>
+
+</html>
