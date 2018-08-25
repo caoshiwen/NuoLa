@@ -341,25 +341,7 @@ html,body{
             -ms-border-radius: 2px;
             -o-border-radius: 2px;
         }
-        ::-webkit-input-placeholder {
-            /* Chrome/Opera/Safari */
-            color: #ccc;
-        }
-
-        ::-moz-placeholder {
-            /* Firefox 19+ */
-            color: #ccc;
-        }
-
-        :-ms-input-placeholder {
-            /* IE 10+ */
-            color: #ccc;
-        }
-
-        :-moz-placeholder {
-            /* Firefox 18- */
-            color: #ccc;
-        }
+        
         .introduce-5th-btn {
             color: #fff;
             padding: 1.2rem 1.5rem;

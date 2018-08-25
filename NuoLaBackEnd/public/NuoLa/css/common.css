@@ -59,7 +59,7 @@ table {
           box-sizing: border-box;
 }
 
-.clearfix:after, .common-nav .nav-innerwrap:after, .common-nav .nav-left .nav-items-list:after, .common-footer .footer-top:after {
+.clearfix:after, .common-nav .nav-innerwrap:after, .common-nav .nav-left .nav-items-list:after, .common-register-block.common-login-block .innerwrap:after, .common-footer .footer-top:after {
   content: ".";
   display: block;
   height: 0;
@@ -67,13 +67,33 @@ table {
   visibility: hidden;
 }
 
-.clearfix, .common-nav .nav-innerwrap, .common-nav .nav-left .nav-items-list, .common-footer .footer-top {
+.clearfix, .common-nav .nav-innerwrap, .common-nav .nav-left .nav-items-list, .common-register-block.common-login-block .innerwrap, .common-footer .footer-top {
   *zoom: 1;
 }
 
 .common-control-width {
   min-width: 1150px;
   max-width: 1220px;
+}
+
+input::-webkit-input-placeholder {
+  /* Chrome/Opera/Safari */
+  color: #ccc;
+}
+
+input::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #ccc;
+}
+
+input:-ms-input-placeholder {
+  /* IE 10+ */
+  color: #ccc;
+}
+
+input:-moz-placeholder {
+  /* Firefox 18- */
+  color: #ccc;
 }
 
 .common-nav {
@@ -172,6 +192,135 @@ table {
 
 .common-nav .ts-fade-enter, .common-nav .ts-fade-leave-to {
   opacity: 0;
+}
+
+.common-login-block {
+  color: #333;
+}
+
+.common-login-block .outerwrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  -webkit-transform-origin: top center;
+          transform-origin: top center;
+}
+
+.common-login-block .innerwrap {
+  width: 350px;
+  height: 390px;
+  line-height: 1.5;
+  background-color: #fff;
+  margin: 100px auto;
+  padding: 4rem 30px 20px 20px;
+  border-radius: 2px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+}
+
+.common-login-block .fade-enter-active,
+.common-login-block .fade-leave-active {
+  transition: all .3s;
+  -webkit-transition: all .3s;
+  -moz-transition: all .3s;
+  -ms-transition: all .3s;
+  -o-transition: all .3s;
+}
+
+.common-login-block .fade-enter,
+.common-login-block .fade-leave-to {
+  opacity: 0;
+}
+
+.common-login-block .login-tip {
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.common-login-block .ipt {
+  outline: none;
+  height: 3rem;
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 0 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  transition: all .3s;
+  -webkit-transition: all .3s;
+  -moz-transition: all .3s;
+  -ms-transition: all .3s;
+  -o-transition: all .3s;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+}
+
+.common-login-block .ipt:focus {
+  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.common-login-block .forget-pwd-tip {
+  text-align: left;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.common-login-block .forget-pwd-click {
+  color: #039be5;
+}
+
+.common-login-block .login {
+  width: 100%;
+  height: 3rem;
+  transition: .3s ease-out;
+  cursor: pointer;
+  background: #1e88e5;
+  text-align: center;
+  outline: none;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  -webkit-transition: .3s ease-out;
+  -moz-transition: .3s ease-out;
+  -ms-transition: .3s ease-out;
+  -o-transition: .3s ease-out;
+  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+}
+
+.common-login-block .login:hover {
+  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.common-login-block .close {
+  float: right;
+  margin-top: 2rem;
+}
+
+.common-register-block.common-login-block .innerwrap {
+  height: auto;
+  padding-top: 40px;
+}
+
+.common-register-block.common-login-block .ipt {
+  margin-bottom: .3rem;
+}
+
+.common-register-block.common-login-block .login {
+  margin-top: 1rem;
 }
 
 .common-footer {

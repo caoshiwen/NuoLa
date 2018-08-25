@@ -3,6 +3,8 @@ var express = require('express');
 var path = require('path');
 var cookieParser = require('cookie-parser');
 var logger = require('morgan');
+var bodyparser = require('body-parser');
+var session  = require('express-session');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
@@ -18,9 +20,23 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: false }));
 app.use(cookieParser());
 app.use(express.static(path.join(__dirname, 'public')));
+app.use(bodyparser.json());
+app.use(bodyparser.urlencoded({ extended: true }));
+
+
+// use session
+app.use(session({
+  secret: "nuolasecret",
+  resave: false,
+  saveUninitialized: true,// save initalized
+  cookie: {
+    maxAge: 1000*60*3, //set session time
+  },
+}));
 
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {
