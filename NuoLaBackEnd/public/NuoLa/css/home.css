@@ -388,7 +388,8 @@ input:-moz-placeholder {
   text-decoration: underline;
 }
 
-html, body {
+html,
+body {
   width: 100%;
   height: 100%;
 }

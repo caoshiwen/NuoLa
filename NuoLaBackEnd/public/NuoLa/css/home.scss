@@ -1,19 +1,18 @@
 @import "common";
-html,body{
+html,
+body {
     width: 100%;
     height: 100%;
 }
-.home-wrap {
-    width: 100%;
-    // height: 100%;
 
+.home-wrap {
+    width: 100%; // height: 100%;
     // -.video-block start
     .video-block {
         width: 100%;
         min-width: $MIN_WIDTH;
         min-height: 450px;
-        max-height: 720px;
-        // height: 1%;
+        max-height: 720px; // height: 1%;
         overflow: hidden;
         position: relative;
         .video-block-innerbg {
@@ -26,7 +25,7 @@ html,body{
         }
         .video-block-word {
             font-size: 2rem;
-            margin:auto;
+            margin: auto;
             color: #fff;
             font-weight: 100;
             font-family: 'Roboto Slab';
@@ -38,20 +37,16 @@ html,body{
             top: 0;
             left: 0;
             bottom: 0;
-            right:0;
+            right: 0;
             z-index: 1;
             height: 7.8rem;
         }
         .video-block-video {
             width: 100%;
             height: 100%;
-            object-fit: cover;
-            // line-height: 1px;
+            object-fit: cover; // line-height: 1px;
         }
-    }
-    //-.video-block end
-
-
+    } //-.video-block end
     //-.images-block start
     .images-block {
         position: relative;
@@ -64,7 +59,6 @@ html,body{
             margin: 0 auto;
             @extend .common-control-width;
         }
-
         .images-block-title {
             font-size: 3rem;
             font-weight: 600;
@@ -98,11 +92,10 @@ html,body{
                 -moz-transform: scale(1.1);
                 -ms-transform: scale(1.1);
                 -o-transform: scale(1.1);
-}
-
+            }
             &.small {
                 margin: 1% 1%;
-                width: 29%;  
+                width: 29%;
                 padding-bottom: 29%;
             }
             &.big {
@@ -114,8 +107,7 @@ html,body{
             .ihb-img-wrap {
                 box-sizing: content-box;
                 transform-origin: 50% 30%;
-                width: 100%;
-                //height: 1000px;
+                width: 100%; //height: 1000px;
                 padding-bottom: 100%;
                 position: relative;
                 transition: transform .2s 0s ease-in-out;
@@ -123,7 +115,7 @@ html,body{
                 -moz-transition: transform .2s 0s ease-in-out;
                 -ms-transition: transform .2s 0s ease-in-out;
                 -o-transition: transform .2s 0s ease-in-out;
-}
+            }
             .ihb-img {
                 box-sizing: content-box;
                 width: 100%;
@@ -138,7 +130,6 @@ html,body{
                 right: 0;
                 bottom: 0;
                 background-color: rgba($color: #000000, $alpha: .4);
-
             }
             .ihb-word {
                 margin: auto;
@@ -156,9 +147,7 @@ html,body{
                 bottom: 0;
             }
         }
-    }
-    //-.images-block end
-
+    } //-.images-block end
     // introduce-1st
     .introduce-1st {
         width: 100%;
@@ -184,7 +173,6 @@ html,body{
         }
         .item-img {
             max-width: 100%;
-
         }
         .item-title {
             font-weight: 600;
@@ -192,11 +180,9 @@ html,body{
         .item-word {
             color: rgba($color: #fff, $alpha: .7)
         }
-    }
-    // introduce-2nd
+    } // introduce-2nd
     .introduce-2nd {
         padding: 45px 0;
-
         .innerwrap {
             margin: 0 auto;
             min-width: $MIN_WIDTH;
@@ -213,7 +199,6 @@ html,body{
             margin-bottom: 2rem;
         }
         .introduce-2nd-btn {
-            
             line-height: 1px;
             padding: 0 2rem;
             display: inline-block;
@@ -236,9 +221,7 @@ html,body{
             font-size: 1.4rem;
             line-height: 1.5;
         }
-    }
-
-    // introduce-3rd
+    } // introduce-3rd
     .introduce-3rd {
         position: relative;
         height: 608px;
@@ -261,7 +244,6 @@ html,body{
             font-weight: 600;
             margin-bottom: 2rem;
             line-height: 3rem;
-
         }
         .introduce-3rd-word {
             min-width: $MIN_WIDTH;
@@ -275,9 +257,7 @@ html,body{
             height: 100%;
             object-fit: cover;
         }
-    }
-
-    // introduce-4th
+    } // introduce-4th
     .introduce-4th {
         color: #fff;
         background-color: #04AFEF;
@@ -286,7 +266,6 @@ html,body{
         .innerwrap {
             min-width: $MIN_WIDTH;
             max-width: $MAX_WIDTH;
-            
         }
         .introduce-4th-title {
             font-size: 3rem;
@@ -298,14 +277,11 @@ html,body{
             font-size: 20px;
             line-height: 1.5;
             margin-bottom: 1.5rem;
-
         }
         .introduce-4th-img {
             width: 400px;
         }
-    }
-
-    //introduce-5th
+    } //introduce-5th
     .introduce-5th {
         color: white;
         background-color: #333;
@@ -341,21 +317,19 @@ html,body{
             -ms-border-radius: 2px;
             -o-border-radius: 2px;
         }
-        
         .introduce-5th-btn {
             color: #fff;
             padding: 1.2rem 1.5rem;
             height: 52px;
             font-size: 17px;
-            background-color: #1e88e5;
-            //display: inline-block;
+            background-color: #1e88e5; //display: inline-block;
             text-decoration: none;
-            border-radius:  2px;
-            -webkit-border-radius:  2px;
-            -moz-border-radius:  2px;
-            -ms-border-radius:  2px;
-            -o-border-radius:  2px;
-}
+            border-radius: 2px;
+            -webkit-border-radius: 2px;
+            -moz-border-radius: 2px;
+            -ms-border-radius: 2px;
+            -o-border-radius: 2px;
+        }
         .introduce-5th-tip {
             line-height: 1.5;
             padding: 1rem 0;
@@ -363,9 +337,7 @@ html,body{
         .el-icon-success {
             margin-right: .5rem;
         }
-    }
-
-    // introduce-design design it
+    } // introduce-design design it
     .introduce-design {
         width: 100%;
         background-color: #04afef;
@@ -400,7 +372,7 @@ html,body{
         }
         .introduce-img {
             max-width: 100%;
-            box-shadow: 0 16px 24px 2px rgba(0,0,0,0.14), 0 6px 30px 5px rgba(0,0,0,0.12), 0 8px 10px -5px rgba(0,0,0,0.3);
+            box-shadow: 0 16px 24px 2px rgba(0, 0, 0, 0.14), 0 6px 30px 5px rgba(0, 0, 0, 0.12), 0 8px 10px -5px rgba(0, 0, 0, 0.3);
         }
         .introduce-word {
             float: right;
@@ -446,7 +418,5 @@ html,body{
         .introduce-try:hover {
             box-shadow: 0 2px 4px rgba(0, 0, 0, .3);
         }
-
     }
-
 }
