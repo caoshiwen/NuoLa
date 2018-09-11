@@ -16,6 +16,7 @@
 </template>
 
 <style lang='scss' scoped>
+
 .wrap {
   box-shadow: 0 8px 16px 0 rgba(0, 0, 0, 0.16), 0 2px 8px 0 rgba(0, 0, 0, 0.12);
   background-color: #fff;
@@ -45,6 +46,7 @@
   line-height: 2rem;
   font-weight: 500;
   transition: background-color .3s;
+  &.router-link-active,
   &:hover {
     background-color: rgba(0, 0, 0, 0.1);
   }
@@ -74,22 +76,22 @@ export default {
             {
               icon: "el-icon-edit",
               word: "Products",
-              link: "account/products"
+              link: "/account/products"
             },
             {
               icon: "el-icon-edit",
               word: "Orders",
-              link: "account/orders"
+              link: "/account/orders"
             },
             {
               icon: "el-icon-edit",
               word: "Collections",
-              link: "account/collections"
+              link: "/account/collections"
             },
             {
               icon: "el-icon-upload",
               word: "Mass upload",
-              link: "account/upload"
+              link: "/account/upload"
             }
           ]
         },
@@ -99,17 +101,17 @@ export default {
             {
               icon: "el-icon-setting",
               word: "Info",
-              link: "account/info"
+              link: "/account/info"
             },
             {
               icon: "el-icon-location",
               word: "Address",
-              link: "account/address"
+              link: "/account/address"
             },
             {
               icon: "el-icon-edit",
               word: "Credit cards",
-              link: "accont/cards"
+              link: "/account/cards"
             }
           ]
         }
@@ -117,11 +119,11 @@ export default {
       other_link:[
           {
               word: 'Open Art of Where store',
-              link: '',
+              link: '/store',
           },
           {
               word: 'Sign up for Wholesale and Drop Ship',
-              link: ''
+              link: '/register'
           }
       ]
     };
