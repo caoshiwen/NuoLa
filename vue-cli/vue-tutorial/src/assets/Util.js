@@ -44,5 +44,5 @@ function showTip(_this, type, message) {
 function noLogonStatusCallBack(_this) {
   _this.$store.commit("removeUser");
   _this.$router.push("/home");
-  _this.showTip("YOUR LOGON STATUS EXPIRED! PLEASE LOGIN AGAIN!", "warning");
+  showTip(_this, "warning", "YOUR LOGON STATUS EXPIRED! PLEASE LOGIN AGAIN!");
 }

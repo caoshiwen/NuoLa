@@ -1,0 +1,408 @@
+@charset "UTF-8";
+html {
+  font-size: 14px;
+  height: 100%;
+}
+
+body, div, dl, dt, dd, ul, ol, li, h1, h2, h3, h4, h5, h6, pre, code, form, fieldset, legend, input, button, textarea, p, blockquote, th, td {
+  margin: 0;
+  padding: 0;
+}
+
+body {
+  background: #fff;
+  color: #000;
+  font-size: 14px;
+  font-family: "PingFang SC","Helvetica Neue",Helvetica,"Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif;
+}
+
+body {
+  min-height: 100%;
+  position: relative;
+  height: auto;
+  padding-bottom: 110px;
+}
+
+td, th, caption {
+  font-size: 14px;
+}
+
+h1, h2, h3, h4, h5, h6 {
+  font-weight: normal;
+  font-size: 100%;
+}
+
+address, caption, cite, code, dfn, em, strong, th, var {
+  font-style: normal;
+  font-weight: normal;
+}
+
+a {
+  color: #000;
+  text-decoration: none;
+}
+
+a:hover {
+  text-decoration: underline;
+}
+
+img {
+  border: none;
+}
+
+ol, ul, li {
+  list-style: none;
+}
+
+input, textarea, select, button {
+  font: 14px Verdana,Helvetica,Arial,sans-serif;
+}
+
+table {
+  border-collapse: collapse;
+}
+
+* {
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.clearfix:after, .common-nav .nav-innerwrap:after, .common-nav .nav-left .nav-items-list:after, .common-register-block.common-login-block .innerwrap:after, .common-footer .footer-top:after {
+  content: ".";
+  display: block;
+  height: 0;
+  clear: both;
+  visibility: hidden;
+}
+
+.clearfix, .common-nav .nav-innerwrap, .common-nav .nav-left .nav-items-list, .common-register-block.common-login-block .innerwrap, .common-footer .footer-top {
+  *zoom: 1;
+}
+
+#app {
+  width: 100%;
+  height: 100%;
+}
+
+body {
+  background: #f4f4f4;
+}
+
+.common-control-width {
+  min-width: 1150px;
+  max-width: 1220px;
+}
+
+input::-webkit-input-placeholder {
+  /* Chrome/Opera/Safari */
+  color: #ccc;
+}
+
+input::-moz-placeholder {
+  /* Firefox 19+ */
+  color: #ccc;
+}
+
+input:-ms-input-placeholder {
+  /* IE 10+ */
+  color: #ccc;
+}
+
+input:-moz-placeholder {
+  /* Firefox 18- */
+  color: #ccc;
+}
+
+.common-nav {
+  width: 100%;
+  min-width: 1150px;
+  background-color: rgba(0, 0, 0, 0.8);
+  position: absolute;
+  top: 0;
+  left: 0;
+  z-index: 10;
+  color: #fff;
+  padding-top: 1.8rem;
+  padding-bottom: 1.8rem;
+  -webkit-box-sizing: border-box;
+          box-sizing: border-box;
+}
+
+.common-nav .nav-innerwrap {
+  padding-left: 10rem;
+  max-width: 1220px;
+  min-width: 1150px;
+  margin: 0 auto;
+}
+
+.common-nav .nav-left {
+  float: left;
+}
+
+.common-nav .nav-left .nav-items-title {
+  padding-right: 3rem;
+  font-weight: 600;
+  -webkit-transition-duration: 300ms;
+          transition-duration: 300ms;
+  -webkit-transition-property: all;
+  transition-property: all;
+  -webkit-transition-timing-function: linear;
+          transition-timing-function: linear;
+  -webkit-transition-delay: color;
+          transition-delay: color;
+}
+
+.common-nav .nav-left .nav-items-list {
+  position: absolute;
+  top: 100%;
+  left: 0;
+  width: 100%;
+  padding-left: 10rem;
+  background-color: #000;
+}
+
+.common-nav .nav-left .nav-items-list-block {
+  float: left;
+  padding-right: 2rem;
+  padding-top: 1.5rem;
+  padding-bottom: 1.5rem;
+}
+
+.common-nav .nav-left .nav-items-list-block-title {
+  display: block;
+}
+
+.common-nav .nav-left .nav-items-list-block-item {
+  color: #fff;
+  display: block;
+  padding-top: .8rem;
+}
+
+.common-nav .nav-right {
+  float: right;
+  color: #fff;
+  font-size: 12px;
+}
+
+.common-nav .nav-right .nav-right-btn {
+  color: #fff;
+  margin-right: 2rem;
+}
+
+.common-nav .nav-right .el-icon-goods {
+  font-size: 1.2rem;
+}
+
+.common-nav .nav-right .cart-btn:hover {
+  text-decoration: none;
+}
+
+.common-nav .ts-fade-enter-active {
+  -webkit-transition: all .3s .2s ease;
+  transition: all .3s .2s ease;
+}
+
+.common-nav .ts-fade-leave-active {
+  -webkit-transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+  transition: all 0.3s cubic-bezier(1, 0.5, 0.8, 1);
+}
+
+.common-nav .ts-fade-enter, .common-nav .ts-fade-leave-to {
+  opacity: 0;
+}
+
+.common-login-block {
+  color: #333;
+}
+
+.common-login-block .outerwrap {
+  position: fixed;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background-color: rgba(0, 0, 0, 0.5);
+  z-index: 998;
+  -webkit-transform-origin: top center;
+          transform-origin: top center;
+}
+
+.common-login-block .innerwrap {
+  width: 350px;
+  height: 390px;
+  line-height: 1.5;
+  background-color: #fff;
+  margin: 100px auto;
+  padding: 4rem 30px 20px 20px;
+  border-radius: 2px;
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+}
+
+.common-login-block .fade-enter-active,
+.common-login-block .fade-leave-active {
+  transition: all .3s;
+  -webkit-transition: all .3s;
+  -moz-transition: all .3s;
+  -ms-transition: all .3s;
+  -o-transition: all .3s;
+}
+
+.common-login-block .fade-enter,
+.common-login-block .fade-leave-to {
+  opacity: 0;
+}
+
+.common-login-block .login-tip {
+  margin-bottom: 15px;
+  font-weight: 600;
+}
+
+.common-login-block .ipt {
+  outline: none;
+  height: 3rem;
+  width: 100%;
+  margin-bottom: 20px;
+  padding: 0 1rem;
+  border: 1px solid rgba(0, 0, 0, 0.2);
+  border-radius: 4px;
+  transition: all .3s;
+  -webkit-transition: all .3s;
+  -moz-transition: all .3s;
+  -ms-transition: all .3s;
+  -o-transition: all .3s;
+  -webkit-border-radius: 4px;
+  -moz-border-radius: 4px;
+  -ms-border-radius: 4px;
+  -o-border-radius: 4px;
+}
+
+.common-login-block .ipt:focus {
+  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.2);
+}
+
+.common-login-block .forget-pwd-tip {
+  text-align: left;
+  margin-top: 1rem;
+  margin-bottom: 1rem;
+}
+
+.common-login-block .forget-pwd-click {
+  color: #039be5;
+}
+
+.common-login-block .login {
+  width: 100%;
+  height: 3rem;
+  transition: .3s ease-out;
+  cursor: pointer;
+  background: #1e88e5;
+  text-align: center;
+  outline: none;
+  color: #fff;
+  border: none;
+  border-radius: 2px;
+  -webkit-transition: .3s ease-out;
+  -moz-transition: .3s ease-out;
+  -ms-transition: .3s ease-out;
+  -o-transition: .3s ease-out;
+  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  -webkit-border-radius: 2px;
+  -moz-border-radius: 2px;
+  -ms-border-radius: 2px;
+  -o-border-radius: 2px;
+}
+
+.common-login-block .login:hover {
+  -webkit-box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+          box-shadow: 0 2px 4px rgba(0, 0, 0, 0.4);
+}
+
+.common-login-block .close {
+  float: right;
+  margin-top: 2rem;
+}
+
+.common-register-block.common-login-block .innerwrap {
+  height: auto;
+  padding-top: 40px;
+}
+
+.common-register-block.common-login-block .ipt {
+  margin-bottom: .3rem;
+}
+
+.common-register-block.common-login-block .login {
+  margin-top: 1rem;
+}
+
+.common-footer {
+  width: 100%;
+  min-width: 1150px;
+  overflow: hidden;
+  position: absolute;
+  bottom: 0;
+}
+
+.common-footer .footer-top-outwrap {
+  width: 100%;
+  background-color: #eeeeee;
+  padding: 0 1rem;
+}
+
+.common-footer .footer-top {
+  max-width: 1220px;
+  min-width: 1150px;
+  margin: 0 auto;
+  padding: 1rem 0;
+}
+
+.common-footer .footer-top .footer-left {
+  line-height: 35px;
+  float: left;
+}
+
+.common-footer .footer-top .footer-left-btn {
+  padding: 0 1rem;
+  color: rgba(0, 0, 0, 0.87);
+}
+
+.common-footer .footer-top .footer-left-btn-divider {
+  position: relative;
+  color: rgba(0, 0, 0, 0.2);
+  top: -2px;
+}
+
+.common-footer .footer-top .footer-right {
+  float: right;
+  padding-right: 1rem;
+}
+
+.common-footer .footer-top .footer-right .footer-right-icon {
+  width: 35px;
+  margin-right: 1rem;
+}
+
+.common-footer .footer-bottom-outwrap {
+  background-color: #dddddd;
+  padding: 0rem 1rem;
+}
+
+.common-footer .footer-bottom {
+  max-width: 1220px;
+  min-width: 1150px;
+  margin: 0 auto;
+  padding: 1rem 1rem;
+  font-size: 12px;
+  color: #626262;
+}
+
+.common-footer .footer-bottom .footer-btn {
+  color: #323232;
+  text-decoration: underline;
+}
+/*# sourceMappingURL=common.css.map */
