@@ -38,6 +38,7 @@ module.exports = {
     PERMISSION_DELETE_DESCRIBE: "删除权限",
     PERMISSION_DELETE_FAILED: "1084",
     //operations
+    OPERATIONS_ALL: "_109",
     OPERATIONS: "109",
     OPERATIONS_DESCRIBE: "查看操作列表",
     OPERATION_ADD: "110",

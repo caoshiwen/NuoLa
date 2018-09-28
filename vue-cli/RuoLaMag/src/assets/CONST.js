@@ -1,9 +1,11 @@
 const CONST = {}
 const HOST = 'http://127.0.0.1:3001/service';
+// const HOST = '/service';
 CONST.HOST = HOST;
 CONST.SESSION_CONFIG_CROS = {
   withCredentials: true
 };
+// CONST.SESSION_CONFIG_CROS = {};
 CONST.REGFOREMAIL = /^([a-z0-9_\.-]+)@([\da-z\.-]+)\.([a-z\.]{2,6})$/;
 CONST.REGFORPASSWORD = /^[a-zA-Z]{1}([a-zA-Z0-9]|[._]){5,18}$/;
 CONST.REGFORACCOUNT = /^[a-zA-Z]{1}([a-zA-Z0-9]|[._]){4,18}$/;
@@ -39,6 +41,7 @@ export default {
   PERMISSION_DELETE_DESCRIBE: "删除权限",
   PERMISSION_DELETE_FAILED: "1084",
   //operations
+  OPERATIONS_ALL:"_109",
   OPERATIONS: "109",
   OPERATIONS_DESCRIBE: "查看操作列表",
   OPERATION_ADD: "110",

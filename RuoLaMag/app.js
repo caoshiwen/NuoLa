@@ -1,19 +1,20 @@
-var createError = require('http-errors');
-var express = require('express');
-var path = require('path');
-var cookieParser = require('cookie-parser');
-var logger = require('morgan');
-var bodyparser = require('body-parser');
-var session  = require('express-session');
+const createError = require('http-errors');
+const express = require('express');
+const path = require('path');
+const cookieParser = require('cookie-parser');
+const logger = require('morgan');
+const bodyparser = require('body-parser');
+const session  = require('express-session');
+const history = require('connect-history-api-fallback');
 
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
 
 var app = express();
+//跨域
 // Access-Control-Allow-Origin.
 app.all('*', function(req, res, next) {
   res.set("Access-Control-Allow-Origin", "http://localhost:8081");
-  //设置Access-Control-Allow-Credentials为true
   res.set('Access-Control-Allow-Credentials', true); 
   res.set("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.set("Access-Control-Allow-Methods","POST, GET");
@@ -44,9 +45,34 @@ app.use(session({
 
 
 
-app.use(express.static(path.join(__dirname, 'public')));
+// //这句代码需要在express.static上面
 app.use('/', indexRouter);
 app.use('/service/users', usersRouter);
+app.use(history({
+  rewrites: [
+    {
+      from: /^\/RuoLa\/.*$/,
+      to: function(context) {
+        return context.parsedUrl.pathname;
+      }
+    },
+    {
+      from: /^\/.*[js|css]$/,
+      to: function(context) {
+        return '/RuoLa/'+context.parsedUrl.pathname;
+      }
+    },
+    {
+      from: /^\/.*$/,
+      to: function(context) {
+        return '/RuoLa/';
+      }
+    },
+
+  ]
+}));
+app.use(express.static(path.join(__dirname, 'public')));
+
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

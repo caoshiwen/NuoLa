@@ -11,7 +11,7 @@ import OperationPower from '../components/OperationPower'
 Vue.use(Router)
 
 export default new Router({
-  // mode: "history",
+  mode: "history",
   // base: '/RuoLa/',
   routes: [
     //home
