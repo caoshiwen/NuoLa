@@ -26,15 +26,28 @@ const sqls = {
     //user state(status)
     CHANGEUSERSTATE: 'UPDATE mag_users set mag_user_state = ? WHERE mag_user_account = ? AND mag_user_id <> ?',
     //permission
-    PERMISSIONS: 'SELECT mag_permission_id id,mag_permission_describe _describe FROM mag_permissions',
-    PERMISSIONSTOTAL: 'SELECT COUNT(*) AS total FROM mag_permissions',
+    PERMISSIONS: 'SELECT mag_permission_id id,mag_permission_describe _describe FROM mag_permissions WHERE mag_permission_id <> "1"',
+    PERMISSIONSTOTAL: 'SELECT COUNT(*) AS total FROM mag_permissions WHERE mag_permission_id <> "1"',
     ADDPERMISSION: 'INSERT mag_permissions(mag_permission_id, mag_permission_describe) VALUES(?,?) ON DUPLICATE KEY UPDATE mag_permission_describe = ?',
     DELETEPERMISSION: 'DELETE FROM mag_permissions WHERE mag_permission_id = ?',
     //operation
     OPERAITONS: 'SELECT mag_transaction_id id,mag_transaction_describe _describe FROM mag_transactions',
-    OPERAITONSSTOTAL: 'SELECT COUNT(*) AS total FROM mag_transactions',
+    OPERAITONSTOTAL: 'SELECT COUNT(*) AS total FROM mag_transactions',
     ADDOPERATION: 'INSERT mag_transactions(mag_transaction_id, mag_transaction_describe) VALUES(?,?) ON DUPLICATE KEY UPDATE mag_transaction_describe = ?',
     DELETEOPERATOIN: 'DELETE FROM mag_transactions WHERE mag_transaction_id = ?',
+    //userpower
+    USERPOWERS: `SELECT u.mag_user_name name, u.mag_user_account account,
+    p.mag_permission_id id, p.mag_permission_describe _describe from mag_user_permissions up 
+    inner join mag_users u on up.mag_user_permission_user_id = u.mag_user_id and u.mag_user_id <> '1' 
+    inner join mag_permissions p on up.mag_user_permission_permission_id = p.mag_permission_id `,
+    USERPOWERSTOTAL: `SELECT COUNT(*) total from mag_user_permissions up 
+    inner join mag_users u on up.mag_user_permission_user_id = u.mag_user_id and u.mag_user_id <> '1' 
+    inner join mag_permissions p on up.mag_user_permission_permission_id = p.mag_permission_id`,
+    DELETEUSERPOWER: `DELETE FROM mag_user_permissions WHERE 
+    mag_user_permissions.mag_user_permission_user_id IN (SELECT mag_user_id FROM mag_users WHERE mag_user_account = ?) 
+    AND mag_user_permissions.mag_user_permission_permission_id = ?`,
+    ADDUSERPOWER: `INSERT mag_user_permissions(mag_user_permission_permission_id,mag_user_permission_user_id) 
+    VALUES( ? ,(SELECT mag_user_id FROM mag_users WHERE mag_user_account = ? ))`,
     // TOTAL_2: 'SELECT FOUND_ROWS() AS total',
 
 
@@ -58,6 +71,11 @@ module.exports = {
     operations,
     addOperation,
     deleteOperation,
+    userpowers,
+    addUserpower,
+    deleteUserpower,
+    allUsers,
+    allPermissions,
     rsa,
 };
 
@@ -188,7 +206,6 @@ function _list(req, res, next) {
     },next);
     let limit = $util.getLimit(body.current_page, body.page_size);
     let order_by = $util.getDescOrAsc(body.order, body.prop);
-    console.log(sqls.USERLIST + order_by + ", mag_user_id " + limit);
     $dao.doQuery(sqls.USERLIST + order_by + ", mag_user_id " + limit, [], (err, result) => {
         $dao.doQuery(sqls.TOTAL, [], (_err, _result) => {
             try {
@@ -269,8 +286,7 @@ function _permissions(req, res, next) {
     },next);
     let limit = $util.getLimit(body.current_page, body.page_size);
     let order_by = $util.getDescOrAsc(body.order, body.prop);
-    console.log(sqls.PERMISSIONS + order_by + limit);
-    $dao.doQuery(sqls.PERMISSIONS + order_by + limit, [], (err, result) => {
+    $dao.doQuery(sqls.PERMISSIONS + order_by + ", id " + limit, [], (err, result) => {
         $dao.doQuery(sqls.PERMISSIONSTOTAL, [], (_err, _result) => {
             try {
                 result[0].total = _result[0].total;
@@ -364,9 +380,8 @@ function _operations(req, res, next) {
     },next); 
     let limit = $util.getLimit(body.current_page, body.page_size);
     let order_by = $util.getDescOrAsc(body.order, body.prop);
-    console.log(sqls.OPERAITONS + order_by + limit);
-    $dao.doQuery(sqls.OPERAITONS + order_by + limit, [], (err, result) => {
-        $dao.doQuery(sqls.OPERAITONSSTOTAL, [], (_err, _result) => {
+    $dao.doQuery(sqls.OPERAITONS + order_by + ", id " + limit, [], (err, result) => {
+        $dao.doQuery(sqls.OPERAITONSTOTAL, [], (_err, _result) => {
             try {
                 result[0].total = _result[0].total;
                 addOperationRecord(req,$CONST.OPERATIONS, $CONST.OPERATIONS_DESCRIBE);
@@ -427,6 +442,136 @@ function _deleteOperation(req, res, next) {
             $uresp.resp($CONST.OPERATION_DELETE, req, res, err, []);
         } else {
             $uresp.resp($CONST.OPERATION_DELETE_FAILED, req, res, err, []);
+        }
+    });
+}
+
+
+/**
+ * userpower list
+ * @param {request} req
+ * @param {response} res
+ * @param {*} next
+ */
+function userpowers(req, res, next) {
+    checkPermission(req, res, $CONST.USERPOWERS, () => {
+        _userpowers(req, res, next);
+    }, next);
+}
+function _userpowers(req, res, next) {
+    let {
+        current_page,
+        order,
+        page_size,
+        prop,
+        key
+    } = req.body;
+    let body = $util.decryptBody({
+        current_page,
+        order,
+        page_size,
+        prop,
+        key
+    },next); 
+    let limit = $util.getLimit(body.current_page, body.page_size);
+    let order_by = $util.getDescOrAsc(body.order, body.prop);
+    $dao.doQuery(sqls.USERPOWERS + order_by + ", mag_user_id " + limit, [], (err, result) => {
+        $dao.doQuery(sqls.USERPOWERSTOTAL, [], (_err, _result) => {
+            try {
+                result[0].total = _result[0].total;
+                addOperationRecord(req,$CONST.USERPOWERS, $CONST.USERPOWERS_DESCRIBE);
+                $uresp.resp($CONST.USERPOWERS, req, res, err, result);
+            } catch (error) {
+                console.log(error);
+                next();
+            }
+        });
+    });
+    
+}
+//add userpower
+function addUserpower(req, res, next) {
+    checkPermission(req, res, $CONST.OPERATION_ADD, () => {
+        _addUserpower(req, res, next);
+    }, next);
+}
+function _addUserpower(req, res, next) {
+    let {
+        key,
+        id,
+        account
+    } = req.body;
+    let body = $util.decryptBody({
+        key,
+        id,
+        account
+    },next);
+    $dao.doQuery(sqls.ADDUSERPOWER, [body.id, body.account], (err, result) => {
+        console.log(result);
+        if (result&&result.affectedRows) {
+            addOperationRecord(req,$CONST.USERPOWER_ADD, `${$CONST.USERPOWER_ADD_DESCRIBE},id:${body.id},account:${body.account}`);
+            $uresp.resp($CONST.USERPOWER_ADD, req, res, err, []);
+        } else {
+            $uresp.resp($CONST.USERPOWER_ADD_FAILED, req, res, err, []);
+        }
+    });
+}
+//delete userpower
+function deleteUserpower(req, res, next) {
+    checkPermission(req, res, $CONST.USERPOWER_DELETE, () => {
+        _deleteUserpower(req, res, next);
+    }, next);
+}
+function _deleteUserpower(req, res, next) {
+    let {
+        key,
+        id,
+        account
+    } = req.body;
+    let body = $util.decryptBody({
+        key,
+        id,
+        account
+    },next);
+    $dao.doQuery(sqls.DELETEUSERPOWER, [body.account,body.id], (err, result) => {
+        let re = result.affectedRows >= 1 ? true : false;
+        if (re) {
+            addOperationRecord(req,$CONST.USERPOWER_DELETE, `${$CONST.USERPOWER_DELETE_DESCRIBE},权限id:${body.id},用户account:${body.account}`);
+            $uresp.resp($CONST.USERPOWER_DELETE, req, res, err, []);
+        } else {
+            $uresp.resp($CONST.USERPOWER_DELETE_FAILED, req, res, err, []);
+        }
+    });
+}
+//all users
+function allUsers(req, res, next) {
+    checkPermission(req, res, $CONST.USERS_ALL, () => {
+        _allUsers(req, res, next);
+    }, next);
+}
+function _allUsers(req, res, next) {
+    $dao.doQuery(sqls.USERLIST, [], (err, result) => {
+        let re = result.length >= 1 ? true : false;
+        if (re) {
+            $uresp.resp($CONST.USERS_ALL, req, res, err, result);
+        } else {
+            $uresp.resp($CONST.USERS_ALL, req, res, err, []);
+        }
+    });
+}
+//all permissions
+function allPermissions(req, res, next) {
+    checkPermission(req, res, $CONST.PERMISSIONS_ALL, () => {
+        _allPermissions(req, res, next);
+    }, next);
+}
+function _allPermissions(req, res, next) {
+    $dao.doQuery(sqls.PERMISSIONS, [], (err, result) => {
+        let re = result.length >= 1 ? true : false;
+        if (re) {
+            $uresp.resp($CONST.PERMISSIONS_ALL, req, res, err, result);
+        } else {
+            $uresp.resp($CONST.PERMISSIONS_ALL, req, res, err, []);
         }
     });
 }

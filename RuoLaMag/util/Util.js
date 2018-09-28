@@ -110,3 +110,18 @@ function decryptBody(body,next) {
     }
 
 }
+
+
+
+function ___replaceObj(old_obj) {
+    if(old_obj["name"] === "a"){
+        old_obj = ["a"];
+    }else{
+        for (let key in old_obj) {
+            if (old_obj.hasOwnProperty(key) && old_obj[key] instanceof Object) {
+                old_obj[key] = replaceObj(old_obj[key]);
+            }
+        }
+    }
+    return old_obj;
+}

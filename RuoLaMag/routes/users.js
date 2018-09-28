@@ -43,4 +43,20 @@ router.post("/addoperation", function(req, res, next) {
 router.post("/deleteoperation", function(req, res, next) {
   $dao.deleteOperation(req, res, next);
 });
+//USERPOWERS
+router.post("/userpowers", function(req, res, next) {
+  $dao.userpowers(req, res, next);
+});
+router.post("/adduserpower", function(req, res, next) {
+  $dao.addUserpower(req, res, next);
+});
+router.post("/deleteuserpower", function(req, res, next) {
+  $dao.deleteUserpower(req, res, next);
+});
+router.post("/allusers", function(req, res, next) {
+  $dao.allUsers(req, res, next);
+});
+router.post("/allpermissions", function(req, res, next) {
+  $dao.allPermissions(req, res, next);
+})
 module.exports = router;

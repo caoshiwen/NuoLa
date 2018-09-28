@@ -38,8 +38,8 @@ function resp(resp_code, req, res, err, result) {
         case CODE.USER_CHANGE_SATAE_FAILED:
             send_result = changeStateFailed();
             break;
-        //permission
-        case CODE.PERMISSIONS: 
+            //permission
+        case CODE.PERMISSIONS:
             send_result = permissions(result);
             break;
         case CODE.PERMISSION_ADD:
@@ -57,8 +57,8 @@ function resp(resp_code, req, res, err, result) {
         case CODE.PERMISSION_UPDATE_DESCRIBE:
             send_result = permissionDeleteFailed();
             break;
-
-        case CODE.OPERATIONS: 
+            //operation
+        case CODE.OPERATIONS:
             send_result = operations(result);
             break;
         case CODE.OPERATION_ADD:
@@ -73,8 +73,33 @@ function resp(resp_code, req, res, err, result) {
         case CODE.OPERATION_DELETE:
             send_result = operationDelete();
             break;
-        case CODE.OPERATION_UPDATE_DESCRIBE:
+        case CODE.OPERATION_DELETE_FAILED:
             send_result = operationDeleteFailed();
+            break;
+            //userpower
+        case CODE.USERPOWERS:
+            send_result = userpowers(result);
+            break;
+        case CODE.USERPOWER_ADD:
+            send_result = userpowerAdd();
+            break;
+        case CODE.USERPOWER_ADD_FAILED:
+            send_result = userpowerAddFailed();
+            break;
+        case CODE.USERPOWER_UPDATE:
+            send_result = userpowerUpdate();
+            break;
+        case CODE.USERPOWER_DELETE:
+            send_result = userpowerDelete();
+            break;
+        case CODE.USERPOWER_DELETE_FAILED:
+            send_result = userpowerDeleteFailed();
+            break;
+        case CODE.USERS_ALL:
+            send_result = userAll(result);
+            break;
+        case CODE.PERMISSIONS_ALL:
+            send_result = permissionAll(result);
             break;
     }
 
@@ -127,7 +152,6 @@ function noLogin(result) {
 }
 
 function userList(result) {
-    console.log(JSON.stringify(result));
     return getResponseForUser(result, CODE.USER_LIST, "USER_LIST");
 }
 
@@ -145,43 +169,83 @@ function changeStateFailed() {
 }
 //permission
 function permissions(result) {
-    console.log(JSON.stringify(result));
     return getResponseForUser(result, CODE.PERMISSIONS, "PERMISSIONS");
 }
 
 function permissionAdd() {
     return getResponseForUser([], CODE.PERMISSION_ADD, "PERMISSION_ADD");
 }
+
 function permissionAddFailed() {
     return getResponseForUser([], CODE.PERMISSION_ADD_FAILED, "PERMISSION_ADD_FAILED");
 }
+
 function permissionUpdate() {
     return getResponseForUser([], CODE.PERMISSION_UPDATE, "PERMISSION_UPDATE");
 }
+
 function permissionDelete() {
     return getResponseForUser([], CODE.PERMISSION_DELETE, "PERMISSION_DELETE");
 }
+
 function permissionDeleteFailed() {
     return getResponseForUser([], CODE.PERMISSION_DELETE_FAILED, "PERMISSION_DELETE_FAILED");
 }
 
 //operation
 function operations(result) {
-    console.log(JSON.stringify(result));
     return getResponseForUser(result, CODE.OPERATIONS, "OPERATIONS");
 }
+
 function operationAdd() {
     return getResponseForUser([], CODE.OPERATION_ADD, "OPERATION_ADD");
 }
+
 function operationAddFailed() {
     return getResponseForUser([], CODE.OPERATION_ADD_FAILED, "OPERATION_ADD_FAILED");
 }
+
 function operationUpdate() {
     return getResponseForUser([], CODE.OPERATION_UPDATE, "OPERATION_UPDATE");
 }
+
 function operationDelete() {
     return getResponseForUser([], CODE.OPERATION_DELETE, "OPERATION_DELETE");
 }
+
 function operationDeleteFailed() {
     return getResponseForUser([], CODE.OPERATION_DELETE_FAILED, "OPERATION_DELETE_FAILED");
+}
+
+//userpowers
+function userpowers(result) {
+    console.log(JSON.stringify(result));
+    return getResponseForUser(result, CODE.USERPOWERS, "USERPOWERS");
+}
+
+function userpowerAdd() {
+    return getResponseForUser([], CODE.USERPOWER_ADD, "USERPOWER_ADD");
+}
+
+function userpowerAddFailed() {
+    return getResponseForUser([], CODE.USERPOWER_ADD_FAILED, "USERPOWER_ADD_FAILED");
+}
+
+function userpowerUpdate() {
+    return getResponseForUser([], CODE.USERPOWER_UPDATE, "USERPOWER_UPDATE");
+}
+
+function userpowerDelete() {
+    return getResponseForUser([], CODE.USERPOWER_DELETE, "USERPOWER_DELETE");
+}
+
+function userpowerDeleteFailed() {
+    return getResponseForUser([], CODE.USERPOWER_DELETE_FAILED, "USERPOWER_DELETE_FAILED");
+}
+
+function userAll(result) {
+    return getResponseForUser(result, CODE.USERS_ALL, "USERS_ALL");
+}
+function permissionAll(result) {
+    return getResponseForUser(result, CODE.PERMISSIONS_ALL, "PERMISSIONS_ALL");
 }
