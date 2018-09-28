@@ -6,6 +6,8 @@ import Home from '../components/Home'
 import UserMag from '../components/UserMag'
 import PowerList from '../components/PowerList'
 import OperationList from '../components/OperationList'
+import UserPower from '../components/UserPower'
+import OperationPower from '../components/OperationPower'
 Vue.use(Router)
 
 export default new Router({
@@ -62,6 +64,12 @@ export default new Router({
       },{
         path: '/operationlist',
         component: OperationList
+      },{
+        path: '/userpower',
+        component: UserPower
+      },{
+        path: '/operationpower',
+        component: OperationPower
       }]
     },
     //error redirect

@@ -8,31 +8,44 @@
             @sort-change="sortChange"
             style="width: 100%"
             v-loading="loading">
+              <el-table-column
+                sortable="custom"
+                fixed
+                prop="name"
+                label="姓名"
+                width="120">
+                </el-table-column>
+                <el-table-column
+                sortable="custom"
+                prop="account"
+                label="账户"
+                width="120">
+                </el-table-column>
                 <el-table-column
                 sortable="custom"
                 fixed
                 prop="id"
-                label="操作ID"
+                label="权限ID"
                 width="120">
                 </el-table-column>
                 <el-table-column
                 prop="_describe"
-                label="操作描述"
+                label="权限描述"
                 min-width="240">
                 </el-table-column>
                 <el-table-column
                 fixed="right"
                 label="操作"
-                width="240">
+                width="120">
                 <template slot-scope="scope">
                     <el-button
-                    @click.native.prevent="deleteOperation(scope.$index)"
+                    @click.native.prevent="deleteUserpower(scope.$index)"
                     type="text"
                     size="small">
                     删除
                     </el-button>
                     <el-button
-                    @click.native.prevent="updateOperation(scope.$index)"
+                    @click.native.prevent="updateUserpower(scope.$index)"
                     type="text"
                     size="small">
                     修改
@@ -51,18 +64,33 @@
               >
             </el-pagination>
         </el-card>
-        <el-dialog title="添加操作" :visible.sync="AddForm.visible" :width="'400px'">
+        <el-dialog title="添加权限" :visible.sync="AddForm.visible" :width="'360px'">
           <el-form  :model="AddForm" v-loading="AddForm.loading">
             <el-form-item>
-              <el-input v-model="AddForm.id" auto-complete="off" placeholder="操作ID"></el-input>
+                <el-select v-model="AddForm.account" placeholder="请选择用户">
+                  <el-option
+                    v-for="item in AddForm.users"
+                    :key="item.account"
+                    :label="`${item.name}:${item.account}`"
+                    :value="item.account"
+                    :disabled="item.state=='1'?false:true">
+                  </el-option>
+                </el-select>
             </el-form-item>
-            <el-form-item>
-              <el-input v-model="AddForm._describe" auto-complete="off" placeholder="操作描述"></el-input>              
-            </el-form-item>
+            <!-- <el-form-item> -->
+              <el-select v-model="AddForm.id" placeholder="请选择权限">
+                  <el-option
+                    v-for="item in AddForm.permissions"
+                    :key="item.id"
+                    :label="`${item.id}:${item._describe}`"
+                    :value="item.id">
+                  </el-option>
+                </el-select>             
+            <!-- </el-form-item> -->
           </el-form>
           <div slot="footer" class="dialog-footer">
             <el-button @click="AddForm.visible = false">取 消</el-button>
-            <el-button type="primary" @click="addOperation">确 定</el-button>
+            <el-button type="primary" @click="addUserpower">确 定</el-button>
           </div>
         </el-dialog>
     </div>    
@@ -71,8 +99,9 @@
 .pagination {
   text-align: center;
 }
-.add-form {
-  width: 400px !important;
+
+.el-select {
+  width: 100%;
 }
 </style>
 <script>
@@ -80,7 +109,7 @@ import CONST from "../assets/CONST";
 import Util from "../assets/Util";
 
 export default {
-  name: "OperationList",
+  name: "UserPower",
   data() {
     return {
       loading: false,
@@ -94,9 +123,11 @@ export default {
       },
       AddForm: {
         visible: false,
+        account: "",
         id: "",
-        _describe: "",
         loading: false,
+        users: [],
+        permissions: []
       }
     };
   },
@@ -121,11 +152,11 @@ export default {
 
       Util.cRequest(
         this,
-        "/users/operations",
+        "/users/userpowers",
         { current_page, order, page_size, prop, key },
         data => {
           switch (data.service_code) {
-            case CONST.OPERATIONS:
+            case CONST.USERPOWERS:
               this.table_data = data.result;
               this.table.total = data.result[0].total;
               break;
@@ -137,25 +168,25 @@ export default {
         }
       );
     },
-    addOperation() {
+    addUserpower() {
       this.AddForm.loading = true;
-      let {id, _describe} = this.AddForm;
+      let {account, id} = this.AddForm;
       let key = this.$store.state.user.key;
-      Util.cRequest(this, "/users/addoperation", { key, id, _describe }, data => {
+      Util.cRequest(this, "/users/adduserpower", { key, account, id }, data => {
         this.AddForm.loading = false;
         console.log(data.service_code)
         switch (data.service_code) {
-          case CONST.OPERATION_ADD:
+          case CONST.USERPOWER_ADD:
             Util.showTip(this, "success", "OPERATE SUCCESSFULLY!");
             this.requestData();
+            this.AddForm.account = "";
             this.AddForm.id = "";
-            this.AddForm._describe = "";
             break;
-          case CONST.OPERATION_ADD_FAILED:
+          case CONST.USERPOWER_ADD_FAILED:
             Util.showTip(
               this,
               "warning",
-              "PLEASE CHECK THE ID THAT MAY HAVE BEEN USED!"
+              "THE USER HAS THIS POWER ALREADY!"
             );
             break;
           default:
@@ -165,21 +196,24 @@ export default {
         }
       });
     },
-    updateOperation(index) {
+    updateUserpower(index) {
       let id = this.table_data[index].id;
+      let account = this.table_data[index].account;  
       this.AddForm.visible = true;
       this.AddForm.id = id;
+      this.AddForm.account = account;
     },
-    deleteOperation(index) {
+    deleteUserpower(index) {
       let key = this.$store.state.user.key;
       let id = this.table_data[index].id;
-      Util.cRequest(this, "/users/deleteoperation", { key, id }, data => {
+      let account = this.table_data[index].account;
+      Util.cRequest(this, "/users/deleteuserpower", { key, id, account }, data => {
         switch (data.service_code) {
-          case CONST.OPERATION_DELETE:
+          case CONST.USERPOWER_DELETE:
             Util.showTip(this, "success", "DELETE SUCCESSFULLY!");
             this.requestData();
             break;
-          case CONST.OPERATION_DELETE_FAILED:
+          case CONST.USERPOWER_DELETE_FAILED:
             Util.showTip(
               this,
               "warning",
@@ -192,9 +226,53 @@ export default {
             break;
         }
       });
+    },
+    allUser() {
+      let key = this.$store.state.user.key;
+      Util.cRequest(
+        this,
+        "/users/allusers",
+        {key},
+        data => {
+          switch (data.service_code) {
+            case CONST.USERS_ALL:
+              this.AddForm.users = data.result;
+              break;
+            default:
+              this.AddForm.users = [];
+              Util.showTip(this, "warning", "GET ALL USERS UNKNOW ERROR!");
+              break;
+          }
+        }
+      );
+    },
+    allPermission() {
+      let key = this.$store.state.user.key;
+      Util.cRequest(
+        this,
+        "/users/allpermissions",
+        {key},
+        data => {
+          switch (data.service_code) {
+            case CONST.PERMISSIONS_ALL:
+              this.AddForm.permissions = data.result;
+              break;
+            default:
+              this.AddForm.permissions = [];
+              Util.showTip(this, "warning", "GET ALL PERMISSIONS UNKNOW ERROR!");
+              break;
+          }
+        }
+      );
     }
   },
-  mounted() {},
+  mounted() {
+
+  },
+  created() {
+    this.allUser();
+    this.allPermission();
+  },
   watch: {}
 };
 </script>

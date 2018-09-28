@@ -24,7 +24,8 @@
                 <span>管理员账号管理</span>
                 </template>
                 <el-menu-item index="/usermag">管理员列表</el-menu-item>
-                <el-menu-item index="1-2">权限设置</el-menu-item>
+                <el-menu-item index="/userpower">权限分配</el-menu-item>
+                <el-menu-item index="/operationpower">操作权限</el-menu-item>
                 <el-menu-item index="1-3">操作记录</el-menu-item>
             </el-submenu>
             <el-submenu index="2">

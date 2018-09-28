@@ -111,7 +111,8 @@ function cRequest(_this, url, _param, callBack){
     }
     _this.loading = false;
   })
-  .catch(() => {
+  .catch((error) => {
+    console.warn(error)
     showTip(_this, "warning", "UNKNOW ERROR!");
     _this.loading = false;
   });

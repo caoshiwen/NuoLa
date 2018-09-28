@@ -80,7 +80,7 @@ import CONST from "../assets/CONST";
 import Util from "../assets/Util";
 
 export default {
-  name: "UserMag",
+  name: "PowerList",
   data() {
     return {
       loading: false,
@@ -179,7 +179,7 @@ export default {
             Util.showTip(this, "success", "DELETE SUCCESSFULLY!");
             this.requestData();
             break;
-          case CONST.PERMISSION_DELETE_ERROR:
+          case CONST.PERMISSION_DELETE_FAILED:
             Util.showTip(
               this,
               "warning",
