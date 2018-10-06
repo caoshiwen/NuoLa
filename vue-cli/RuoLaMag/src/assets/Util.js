@@ -11,7 +11,10 @@ export default {
   noLogonStatusCallBack,
   decryptResponse,
   encryptParam,
-  cRequest
+  cRequest,
+  checkPassword,
+  checkAccount,
+  checkName
 }
 
 
@@ -33,6 +36,15 @@ function checkLoginState() {
   return store.state.user.name;
 }
 
+function checkPassword(password) {
+  return /^[\w_-]{6,18}$/.test(password);
+}
+function checkAccount(account) {
+  return /^[\w_-]{1,18}$/.test(account);
+}
+function checkName(name) {
+  return /^([a-zA-Z0-9\u4e00-\u9fa5\·]{1,10})$/.test(name);
+}
 /**
  * tip from element-ui
  * @param {vue this} _this 

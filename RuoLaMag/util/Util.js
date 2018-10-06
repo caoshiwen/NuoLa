@@ -1,5 +1,6 @@
 const uuid = require('node-uuid');
 let CONST = require('./CONST');
+let moment = require('moment')
 let {
     decryptRsa
 } = require("./Encryption");
@@ -9,6 +10,8 @@ module.exports = {
     checkEmail,
     checkPwd,
     checkAccount,
+    checkName,
+    checkHash64,
     getUUID,
     creatLoginKey,
     creatUserId,
@@ -17,7 +20,10 @@ module.exports = {
     getDescOrAsc,
     getLimit,
     //for body
-    decryptBody
+    decryptBody,
+    //for id
+    getUserId,
+    //
 }
 
 
@@ -50,7 +56,13 @@ function checkPwd(pwd) {
 function checkAccount(account) {
     return !!account.match(CONST.REGFORACCOUNT);
 }
+function checkName(name) {
+    return /^([a-zA-Z0-9\u4e00-\u9fa5\·]{1,10})$/.test(name);
+  }
 
+  function checkHash64(hash) {
+    return /^[0-9a-z]{64}$/.test(hash);
+}
 
 /**
  * uuid: The only code
@@ -124,4 +136,8 @@ function ___replaceObj(old_obj) {
         }
     }
     return old_obj;
+}
+
+function getUserId(account) {
+    return account + `_` + moment().format('YYYYMMDDHHmmss');
 }

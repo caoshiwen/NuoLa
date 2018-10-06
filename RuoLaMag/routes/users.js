@@ -20,6 +20,9 @@ router.post('/list', function(req, res, next) {
     next();
   }
 });
+router.post('/addmaguser', function(req, res, next) {
+  $dao.addUser(req, res, next);
+});
 router.post("/banuser", function(req, res, next) {
   $dao.banUser(req, res, next);
 });
@@ -58,5 +61,22 @@ router.post("/allusers", function(req, res, next) {
 });
 router.post("/allpermissions", function(req, res, next) {
   $dao.allPermissions(req, res, next);
+});
+//OPERATIONPOWERS
+router.post("/operationpowers", (req, res, next) => {
+  $dao.operationpowers(req, res, next);
+});
+router.post("/addoperationpower", (req, res, next) => {
+  $dao.addOperationpower(req, res, next);
+});
+router.post("/deleteoperationpower", (req, res, next) => {
+  $dao.deleteOperationpower(req, res, next);
+});
+router.post("/alloperations", (req, res, next) => {
+  $dao.allOperations(req, res, next);
+});
+//OPERATIONLOGS
+router.post("/operationlogs", (req, res, next) => {
+  $dao.operationLogs(req, res, next);
 })
 module.exports = router;

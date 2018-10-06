@@ -8,6 +8,7 @@ import PowerList from '../components/PowerList'
 import OperationList from '../components/OperationList'
 import UserPower from '../components/UserPower'
 import OperationPower from '../components/OperationPower'
+import OperationLogs from '../components/OperationLogs'
 Vue.use(Router)
 
 export default new Router({
@@ -70,6 +71,9 @@ export default new Router({
       },{
         path: '/operationpower',
         component: OperationPower
+      },{
+        path: '/operationlogs',
+        component: OperationLogs
       }]
     },
     //error redirect

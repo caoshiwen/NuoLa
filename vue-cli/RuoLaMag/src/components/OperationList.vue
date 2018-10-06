@@ -84,8 +84,7 @@ export default {
   data() {
     return {
       loading: false,
-      table_data: [
-      ],
+      table_data: [],
       table: {
         prop: "default",
         order: "ascending", //ascending or descending
@@ -96,7 +95,7 @@ export default {
         visible: false,
         id: "",
         _describe: "",
-        loading: false,
+        loading: false
       }
     };
   },
@@ -127,7 +126,7 @@ export default {
           switch (data.service_code) {
             case CONST.OPERATIONS:
               this.table_data = data.result;
-              this.table.total = data.result[0].total;
+              this.table.total = data.result[0]? data.result[0].total: 0;
               break;
             default:
               this.table_data = [];
@@ -139,31 +138,36 @@ export default {
     },
     addOperation() {
       this.AddForm.loading = true;
-      let {id, _describe} = this.AddForm;
+      let { id, _describe } = this.AddForm;
       let key = this.$store.state.user.key;
-      Util.cRequest(this, "/users/addoperation", { key, id, _describe }, data => {
-        this.AddForm.loading = false;
-        console.log(data.service_code)
-        switch (data.service_code) {
-          case CONST.OPERATION_ADD:
-            Util.showTip(this, "success", "OPERATE SUCCESSFULLY!");
-            this.requestData();
-            this.AddForm.id = "";
-            this.AddForm._describe = "";
-            break;
-          case CONST.OPERATION_ADD_FAILED:
-            Util.showTip(
-              this,
-              "warning",
-              "PLEASE CHECK THE ID THAT MAY HAVE BEEN USED!"
-            );
-            break;
-          default:
-            this.table_data = [];
-            Util.showTip(this, "warning", "UNKNOW ERROR!");
-            break;
+      Util.cRequest(
+        this,
+        "/users/addoperation",
+        { key, id, _describe },
+        data => {
+          this.AddForm.loading = false;
+          console.log(data.service_code);
+          switch (data.service_code) {
+            case CONST.OPERATION_ADD:
+              Util.showTip(this, "success", "OPERATE SUCCESSFULLY!");
+              this.requestData();
+              this.AddForm.id = "";
+              this.AddForm._describe = "";
+              break;
+            case CONST.OPERATION_ADD_FAILED:
+              Util.showTip(
+                this,
+                "warning",
+                "PLEASE CHECK THE ID THAT MAY HAVE BEEN USED!"
+              );
+              break;
+            default:
+              this.table_data = [];
+              Util.showTip(this, "warning", "UNKNOW ERROR!");
+              break;
+          }
         }
-      });
+      );
     },
     updateOperation(index) {
       let id = this.table_data[index].id;
@@ -177,14 +181,13 @@ export default {
         switch (data.service_code) {
           case CONST.OPERATION_DELETE:
             Util.showTip(this, "success", "DELETE SUCCESSFULLY!");
+            if (this.table_data.length == 1 && this.table.current_page > 1) {
+              this.table.current_page--;
+            }
             this.requestData();
             break;
           case CONST.OPERATION_DELETE_FAILED:
-            Util.showTip(
-              this,
-              "warning",
-              "EDLETE ERROR!REFRESH YOUR WEBPAGE!"
-            );
+            Util.showTip(this, "warning", "EDLETE ERROR!REFRESH YOUR WEBPAGE!");
             break;
           default:
             this.table_data = [];

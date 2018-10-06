@@ -29,6 +29,12 @@ function resp(resp_code, req, res, err, result) {
         case CODE.USER_LIST:
             send_result = userList(result);
             break;
+        case CODE.USER_ADD:
+            send_result = userAdd(result);
+            break;
+        case CODE.USER_ADD_FAILED:
+            send_result = userAddFailed(result);
+            break;
         case CODE.NO_PERMISSION:
             send_result = noPermission();
             break;
@@ -101,6 +107,32 @@ function resp(resp_code, req, res, err, result) {
         case CODE.PERMISSIONS_ALL:
             send_result = permissionAll(result);
             break;
+        //operationpower
+        case CODE.OPERATIONPOWERS:
+            send_result = operationpowers(result);
+            break;
+        case CODE.OPERATIONPOWER_ADD:
+            send_result = operationpowerAdd();
+            break;
+        case CODE.OPERATIONPOWER_ADD_FAILED:
+            send_result = operationpowerAddFailed();
+            break;
+        case CODE.OPERATIONPOWER_UPDATE:
+            send_result = operationpowerUpdate();
+            break;
+        case CODE.OPERATIONPOWER_DELETE:
+            send_result = operationpowerDelete();
+            break;
+        case CODE.OPERATIONPOWER_DELETE_FAILED:
+            send_result = operationpowerDeleteFailed();
+            break;
+        case CODE.OPERATIONS_ALL:
+            send_result = operationAll(result);
+            break;
+        //operation logs
+        case CODE.OPERATION_LOGS:
+            send_result = operationLogs(result);
+            break;
     }
 
     if (typeof result === 'undefined') {
@@ -124,13 +156,16 @@ function rsa(rsa) {
 // login
 function login(req, res, err, result) {
     let code = CODE.USER_LOGIN_SUCCESS;
-    if (!result.length) {
+    let msg = 'USER_LOGIN_SUCCESS';
+    if (result.length == 0) {
         code = CODE.USER_LOGIN_ERROR_PASSWORD;
-    } else if (result[0].state) {
+        msg = "USER_LOGIN_ERROR_PASSWORD";
+    } else if (result[0] && result[0].state == 0) {
         code = CODE.USER_LOGIN_INACTIVE;
+        msg = "USER_LOGIN_INACTIVE";
         result = [];
     }
-    return getResponseForUser(result, code, "USER_LOGIN");
+    return getResponseForUser(result, code, msg);
 
 }
 // checkLogin
@@ -155,6 +190,12 @@ function userList(result) {
     return getResponseForUser(result, CODE.USER_LIST, "USER_LIST");
 }
 
+function userAdd(result) {
+    return getResponseForUser(result, CODE.USER_ADD, "USER_ADD");
+}
+function userAddFailed(result) {
+    return getResponseForUser(result, CODE.USER_ADD_FAILED, "USER_ADD_FAILED");
+}
 //nopermission
 function noPermission() {
     return getResponseForUser([], CODE.NO_PERMISSION, "NO_PERMISSION");
@@ -246,6 +287,41 @@ function userpowerDeleteFailed() {
 function userAll(result) {
     return getResponseForUser(result, CODE.USERS_ALL, "USERS_ALL");
 }
+
 function permissionAll(result) {
     return getResponseForUser(result, CODE.PERMISSIONS_ALL, "PERMISSIONS_ALL");
+}
+
+//operationpowers
+function operationpowers(result) {
+    console.log(JSON.stringify(result));
+    return getResponseForUser(result, CODE.OPERATIONPOWERS, "OPERATIONPOWERS");
+}
+
+function operationpowerAdd() {
+    return getResponseForUser([], CODE.OPERATIONPOWER_ADD, "OPERATIONPOWER_ADD");
+}
+
+function operationpowerAddFailed() {
+    return getResponseForUser([], CODE.OPERATIONPOWER_ADD_FAILED, "OPERATIONPOWER_ADD_FAILED");
+}
+
+function operationpowerUpdate() {
+    return getResponseForUser([], CODE.OPERATIONPOWER_UPDATE, "OPERATIONPOWER_UPDATE");
+}
+
+function operationpowerDelete() {
+    return getResponseForUser([], CODE.OPERATIONPOWER_DELETE, "OPERATIONPOWER_DELETE");
+}
+
+function operationpowerDeleteFailed() {
+    return getResponseForUser([], CODE.OPERATIONPOWER_DELETE_FAILED, "OPERATIONPOWER_DELETE_FAILED");
+}
+
+function operationAll(result) {
+    return getResponseForUser(result, CODE.OPERATIONS_ALL, "OPERATIONS_ALL");
+}
+
+function operationLogs(result) {
+    return getResponseForUser(result, CODE.OPERATION_LOGS, "OPERATION_LOGS");
 }

@@ -108,8 +108,8 @@ export default {
     },
     loginCheck() {
       return (
-        this.password.value.match(CONST.REGFORPASSWORD) &&
-        this.account.value.match(CONST.REGFORACCOUNT)
+        Util.checkPassword(this.password.value) &&
+        Util.checkAccount(this.account.value)
       );
     },
     loginFn() {
@@ -123,9 +123,7 @@ export default {
       //post
       this.loginPost(password, account);
     },
-    loginPost(p, a) {
-      let password = p;
-      let account = a;
+    loginPost(password, account) {
       this.$http
         .post(
           `${CONST.HOST}/users/login`,

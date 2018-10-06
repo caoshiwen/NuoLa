@@ -2,11 +2,12 @@ let $dao = require("./Dao"),
     $uresp = require("../resp/UserResp"),
     $util = require("../../util/Util"),
     $CONST = require("../../util/CONST")
-moment = require("moment"), {
-    decryptRsa,
-    encryptKey,
-    SCRIPT
-} = require("../../util/Encryption");
+    moment = require("moment"), 
+    {
+        decryptRsa,
+        encryptKey,
+        SCRIPT
+    } = require("../../util/Encryption");
 
 const sqls = {
     LOGIN: 'SELECT mag_user_id,mag_user_name,mag_user_state FROM mag_users WHERE mag_user_account = ? AND mag_user_password = ?',
@@ -16,6 +17,8 @@ const sqls = {
     USERLIST: 'SELECT mag_user_name name,mag_user_account account,mag_user_state state FROM mag_users WHERE mag_user_id <> "1" ',
     //user account
     TOTAL: 'SELECT COUNT(*) AS total FROM mag_users WHERE mag_user_id <> "1" ',
+    ADDUSER: `INSERT INTO mag_users(mag_user_account,mag_user_name,mag_user_password,mag_user_id) VALUES(?,?,?,?) 
+    ON DUPLICATE KEY UPDATE mag_user_name = ?,mag_user_password = ?`,
     //check permission
     CHECKPERMISSION: `SELECT mag_user_permission_user_id FROM mag_user_permissions WHERE 
     (mag_user_permission_permission_id IN 
@@ -48,6 +51,26 @@ const sqls = {
     AND mag_user_permissions.mag_user_permission_permission_id = ?`,
     ADDUSERPOWER: `INSERT mag_user_permissions(mag_user_permission_permission_id,mag_user_permission_user_id) 
     VALUES( ? ,(SELECT mag_user_id FROM mag_users WHERE mag_user_account = ? ))`,
+    //operationpower
+    OPERATIONPOWERS: `SELECT o.mag_transaction_id oid, o.mag_transaction_describe o_describe,
+    p.mag_permission_id pid, p.mag_permission_describe p_describe from mag_transaction_permissions op
+    inner join mag_transactions o on op.mag_transaction_permission_transaction_id = o.mag_transaction_id
+    inner join mag_permissions p on op.mag_transaction_permission_permission_id = p.mag_permission_id`,
+    OPERATIONPOWERSTOTAL:`SELECT COUNT(*) total from mag_transaction_permissions op
+    inner join mag_transactions o on op.mag_transaction_permission_transaction_id = o.mag_transaction_id
+    inner join mag_permissions p on op.mag_transaction_permission_permission_id = p.mag_permission_id`,
+    DELETEOPERATIONPOWER: `DELETE FROM mag_transaction_permissions WHERE 
+    mag_transaction_permissions.mag_transaction_permission_transaction_id = ? AND mag_transaction_permissions.mag_transaction_permission_permission_id = ?`,
+    ADDOPERATIONPOWER: `INSERT mag_transaction_permissions(mag_transaction_permission_permission_id,mag_transaction_permission_transaction_id) 
+    VALUES(? , ?)`,
+    OPERATIONLOGS:`SELECT u.mag_user_account account, o.mag_transaction_id oid, DATE_FORMAT(ol.mag_operation_log_time,'%Y-%m-%d %H:%i:%S') time, ol.mag_operation_log_describe _describe 
+    from mag_operation_logs ol
+    inner join mag_transactions o on ol.mag_operation_log_transaction_id = o.mag_transaction_id 
+    inner join mag_users u on ol.mag_operation_log_user_id =  u.mag_user_id `,
+    OPERATIONLOGSTOTAL:`SELECT COUNT(*) total
+    from mag_operation_logs ol
+    inner join mag_transactions o on ol.mag_operation_log_transaction_id = o.mag_transaction_id 
+    inner join mag_users u on ol.mag_operation_log_user_id =  u.mag_user_id `,
     // TOTAL_2: 'SELECT FOUND_ROWS() AS total',
 
 
@@ -64,6 +87,7 @@ module.exports = {
     checkPermission,
     addOperationRecord,
     list,
+    addUser,
     banUser,
     permissions,
     addPermission,
@@ -76,6 +100,11 @@ module.exports = {
     deleteUserpower,
     allUsers,
     allPermissions,
+    operationpowers,
+    addOperationpower,
+    deleteOperationpower,
+    allOperations,
+    operationLogs,
     rsa,
 };
 
@@ -209,7 +238,9 @@ function _list(req, res, next) {
     $dao.doQuery(sqls.USERLIST + order_by + ", mag_user_id " + limit, [], (err, result) => {
         $dao.doQuery(sqls.TOTAL, [], (_err, _result) => {
             try {
-                result[0].total = _result[0].total;
+                if(result[0]){
+                    result[0].total = _result[0].total;
+                }
                 addOperationRecord(req,$CONST.USER_LIST, $CONST.USER_LIST_DESCRIBE);
                 $uresp.resp($CONST.USER_LIST, req, res, err, result);
             } catch (error) {
@@ -221,6 +252,44 @@ function _list(req, res, next) {
 }
 
 
+function addUser(req, res, next) {
+    checkPermission(req, res, $CONST.USER_ADD, () => {
+        _addUser(req, res, next);
+    }, next);
+}
+function _addUser(req, res, next) {
+    let {
+        account,
+        name,
+        password
+    } = req.body;
+    let body = $util.decryptBody({
+        account,
+        name,
+        password
+    },next);
+    let params = [body.account, $util.getUserId(body.account) , body.name, body.password,];
+    let sql = `INSERT INTO mag_users(mag_user_account,mag_user_id,mag_user_name,mag_user_password) VALUES(?,?,?,?) 
+    ON DUPLICATE KEY UPDATE `;
+    if(body.name!=$CONST.NONE && $util.checkName(body.name)){
+        sql += " mag_user_name = ? ";
+        params.push(body.name);
+    }
+    if(body.password!=$CONST.NONE && $util.checkHash64(body.password)){
+        sql += params.length==5?",":"" +" mag_user_password = ? ";
+        params.push(body.password);
+    }
+    console.log(sql);
+    console.log(params);
+    $dao.doQuery(sql, params, (err, result) => {
+        if (result && result.affectedRows) {
+            addOperationRecord(req,$CONST.USER_ADD, `${$CONST.USER_ADD_DESCRIBE},姓名:${body.name},账号:${body.account}`);
+            $uresp.resp($CONST.USER_ADD, req, res, err, []);
+        } else {
+            $uresp.resp($CONST.USER_ADD_FAILED, req, res, err, []);
+        }
+    });
+}
 
 /**
  * ban user or enable account
@@ -289,7 +358,9 @@ function _permissions(req, res, next) {
     $dao.doQuery(sqls.PERMISSIONS + order_by + ", id " + limit, [], (err, result) => {
         $dao.doQuery(sqls.PERMISSIONSTOTAL, [], (_err, _result) => {
             try {
-                result[0].total = _result[0].total;
+                if(result[0]){
+                    result[0].total = _result[0].total;
+                }
                 addOperationRecord(req,$CONST.PERMISSIONS, $CONST.PERMISSIONS_DESCRIBE);
                 $uresp.resp($CONST.PERMISSIONS, req, res, err, result);
             } catch (error) {
@@ -383,8 +454,10 @@ function _operations(req, res, next) {
     $dao.doQuery(sqls.OPERAITONS + order_by + ", id " + limit, [], (err, result) => {
         $dao.doQuery(sqls.OPERAITONSTOTAL, [], (_err, _result) => {
             try {
-                result[0].total = _result[0].total;
-                addOperationRecord(req,$CONST.OPERATIONS, $CONST.OPERATIONS_DESCRIBE);
+                if(result[0]){
+                    result[0].total = _result[0].total;
+                }
+                addOperationRecord(req, $CONST.OPERATIONS, $CONST.OPERATIONS_DESCRIBE);
                 $uresp.resp($CONST.OPERATIONS, req, res, err, result);
             } catch (error) {
                 console.log(error);
@@ -478,7 +551,9 @@ function _userpowers(req, res, next) {
     $dao.doQuery(sqls.USERPOWERS + order_by + ", mag_user_id " + limit, [], (err, result) => {
         $dao.doQuery(sqls.USERPOWERSTOTAL, [], (_err, _result) => {
             try {
-                result[0].total = _result[0].total;
+                if(result[0]){
+                    result[0].total = _result[0].total;
+                }
                 addOperationRecord(req,$CONST.USERPOWERS, $CONST.USERPOWERS_DESCRIBE);
                 $uresp.resp($CONST.USERPOWERS, req, res, err, result);
             } catch (error) {
@@ -574,4 +649,183 @@ function _allPermissions(req, res, next) {
             $uresp.resp($CONST.PERMISSIONS_ALL, req, res, err, []);
         }
     });
+}
+
+
+/**
+ * operationpower list
+ * @param {request} req
+ * @param {response} res
+ * @param {*} next
+ */
+function operationpowers(req, res, next) {
+    checkPermission(req, res, $CONST.OPERATIONPOWERS, () => {
+        _operationpowers(req, res, next);
+    }, next);
+}
+function _operationpowers(req, res, next) {
+    let {
+        current_page,
+        order,
+        page_size,
+        prop
+    } = req.body;
+    let body = $util.decryptBody({
+        current_page,
+        order,
+        page_size,
+        prop
+    },next); 
+    let limit = $util.getLimit(body.current_page, body.page_size);
+    let order_by = $util.getDescOrAsc(body.order, body.prop);
+    $dao.doQuery(sqls.OPERATIONPOWERS + order_by + ", mag_transaction_id " + limit, [], (err, result) => {
+        $dao.doQuery(sqls.OPERATIONPOWERSTOTAL, [], (_err, _result) => {
+            try {
+                if(result[0]){
+                    result[0].total = _result[0].total;
+                }
+                addOperationRecord(req,$CONST.OPERATIONPOWERS, $CONST.OPERATIONPOWERS_DESCRIBE);
+                $uresp.resp($CONST.OPERATIONPOWERS, req, res, err, result);
+            } catch (error) {
+                console.log(error);
+                next();
+            }
+        });
+    });
+    
+}
+//add userpower
+function addOperationpower(req, res, next) {
+    checkPermission(req, res, $CONST.OPERATIONPOWER_ADD, () => {
+        _addOperationpower(req, res, next);
+    }, next);
+}
+function _addOperationpower(req, res, next) {
+    let {
+        key,
+        oid,
+        pid,
+    } = req.body;
+    let body = $util.decryptBody({
+        key,
+        oid,
+        pid
+    },next);
+    $dao.doQuery(sqls.ADDOPERATIONPOWER, [body.pid, body.oid], (err, result) => {
+        console.log(result);
+        if (result&&result.affectedRows) {
+            addOperationRecord(req,$CONST.OPERATIONPOWER_ADD, `${$CONST.OPERATIONPOWER_ADD_DESCRIBE},oid:${body.oid},pid:${body.pid}`);
+            $uresp.resp($CONST.OPERATIONPOWER_ADD, req, res, err, []);
+        } else {
+            $uresp.resp($CONST.OPERATIONPOWER_ADD_FAILED, req, res, err, []);
+        }
+    });
+}
+//delete userpower
+function deleteOperationpower(req, res, next) {
+    checkPermission(req, res, $CONST.OPERATIONPOWER_DELETE, () => {
+        _deleteOperationpower(req, res, next);
+    }, next);
+}
+function _deleteOperationpower(req, res, next) {
+    let {
+        key,
+        oid,
+        pid
+    } = req.body;
+    let body = $util.decryptBody({
+        key,
+        oid,
+        pid
+    },next);
+    console.warn(sqls.DELETEOPERATIONPOWER.replace(/\?/, body.oid).replace(/\?/, body.pid));
+    $dao.doQuery(sqls.DELETEOPERATIONPOWER, [body.oid,body.pid], (err, result) => {
+        let re = result.affectedRows >= 1 ? true : false;
+        if (re) {
+            addOperationRecord(req,$CONST.OPERATIONPOWER_DELETE, `${$CONST.OPERATIONPOWER_DELETE_DESCRIBE},oid:${body.oid},pid:${body.pid}`);
+            $uresp.resp($CONST.OPERATIONPOWER_DELETE, req, res, err, []);
+        } else {
+            $uresp.resp($CONST.OPERATIONPOWER_DELETE_FAILED, req, res, err, []);
+        }
+    });
+}
+//all operations
+function allOperations(req, res, next) {
+    checkPermission(req, res, $CONST.OPERATIONS_ALL, () => {
+        _allOperations(req, res, next);
+    }, next);
+}
+function _allOperations(req, res, next) {
+    $dao.doQuery(sqls.OPERAITONS, [], (err, result) => {
+        let re = result.length >= 1 ? true : false;
+        if (re) {
+            $uresp.resp($CONST.OPERATIONS_ALL, req, res, err, result);
+        } else {
+            $uresp.resp($CONST.OPERATIONS_ALL, req, res, err, []);
+        }
+    });
+}
+
+function operationLogs(req, res, next) {
+    checkPermission(req, res, $CONST.OPERATIONS_ALL, () => {
+        _operationLogs(req, res, next);
+    }, next);
+}
+function _operationLogs(req, res, next) {
+    let {
+        current_page,
+        order,
+        page_size,
+        prop,
+        account,
+        oid
+    } = req.body;
+    let body = $util.decryptBody({
+        current_page,
+        order,
+        page_size,
+        prop,
+        account, 
+        oid
+    },next); 
+    let limit = $util.getLimit(body.current_page, body.page_size);
+    let order_by = $util.getDescOrAsc(body.order, body.prop);
+    let filter = "where";
+    let params = [];
+    if(body.account != $CONST.NONE) {
+        filter += " u.mag_user_account = ? ";
+        params.push(body.account);
+    }
+    if(body.oid != $CONST.NONE) {
+        filter += " o.mag_transaction_id = ? ";
+        params.push(body.oid);
+    }
+    filter = filter === "where"? "": filter;
+    $dao.doQuery(sqls.OPERATIONLOGS + filter + order_by + ", ol.mag_operation_log_id " + limit, params, (err, result) => {
+        $dao.doQuery(sqls.OPERATIONLOGSTOTAL + filter , params, (_err, _result) => {
+            try {
+                if(result[0]){
+                    result[0].total = _result[0].total;
+                    console.log(result[0].time);
+                    // for (let key in result) {
+                    //     if (result.hasOwnProperty(key)) {
+                    //         result[key].time = result[key].time.toString();
+                            
+                    //     }
+                    // }
+                    result.forEach(element => {
+                        element.time = element.time.toString();
+                    });
+                    console.log(result[0].time);
+                    
+                }
+                addOperationRecord(req,$CONST.OPERATION_LOGS, $CONST.OPERATION_LOGS_DESCRIBE);
+                $uresp.resp($CONST.OPERATION_LOGS, req, res, err, result);
+            } catch (error) {
+                console.log(error);
+                next();
+            }
+        });
+    });
+    
 }

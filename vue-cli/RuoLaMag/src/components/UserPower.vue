@@ -1,7 +1,8 @@
 <template>
     <div class="user-mag-wrap">
         <el-card  shadow="hover">
-            <el-button @click="AddForm.visible = true">增/改</el-button>
+            <el-button @click="AddForm.visible = true">添加</el-button>
+            <span class="tip">Tip: 用户权限以及操作权限修改为添加操作，想改变某条目，请先直接删除。</span>
             <el-table
             :data="table_data"
             :default-sort = "{prop: 'id', order: 'descending'}"
@@ -64,7 +65,7 @@
               >
             </el-pagination>
         </el-card>
-        <el-dialog title="添加权限" :visible.sync="AddForm.visible" :width="'360px'">
+        <el-dialog title="分配权限" :visible.sync="AddForm.visible" :width="'360px'">
           <el-form  :model="AddForm" v-loading="AddForm.loading">
             <el-form-item>
                 <el-select v-model="AddForm.account" placeholder="请选择用户">
@@ -103,6 +104,11 @@
 .el-select {
   width: 100%;
 }
+.tip {
+  float: right;
+  color: #666;
+  font-size: 0.8em;
+}
 </style>
 <script>
 import CONST from "../assets/CONST";
@@ -113,8 +119,7 @@ export default {
   data() {
     return {
       loading: false,
-      table_data: [
-      ],
+      table_data: [],
       table: {
         prop: "default",
         order: "ascending", //ascending or descending
@@ -158,7 +163,7 @@ export default {
           switch (data.service_code) {
             case CONST.USERPOWERS:
               this.table_data = data.result;
-              this.table.total = data.result[0].total;
+              this.table.total = data.result[0]? data.result[0].total: 0;              
               break;
             default:
               this.table_data = [];
@@ -170,11 +175,11 @@ export default {
     },
     addUserpower() {
       this.AddForm.loading = true;
-      let {account, id} = this.AddForm;
+      let { account, id } = this.AddForm;
       let key = this.$store.state.user.key;
       Util.cRequest(this, "/users/adduserpower", { key, account, id }, data => {
         this.AddForm.loading = false;
-        console.log(data.service_code)
+        console.log(data.service_code);
         switch (data.service_code) {
           case CONST.USERPOWER_ADD:
             Util.showTip(this, "success", "OPERATE SUCCESSFULLY!");
@@ -183,11 +188,7 @@ export default {
             this.AddForm.id = "";
             break;
           case CONST.USERPOWER_ADD_FAILED:
-            Util.showTip(
-              this,
-              "warning",
-              "THE USER HAS THIS POWER ALREADY!"
-            );
+            Util.showTip(this, "warning", "THE USER HAS THIS POWER ALREADY!");
             break;
           default:
             this.table_data = [];
@@ -198,7 +199,7 @@ export default {
     },
     updateUserpower(index) {
       let id = this.table_data[index].id;
-      let account = this.table_data[index].account;  
+      let account = this.table_data[index].account;
       this.AddForm.visible = true;
       this.AddForm.id = id;
       this.AddForm.account = account;
@@ -207,68 +208,64 @@ export default {
       let key = this.$store.state.user.key;
       let id = this.table_data[index].id;
       let account = this.table_data[index].account;
-      Util.cRequest(this, "/users/deleteuserpower", { key, id, account }, data => {
+      Util.cRequest(
+        this,
+        "/users/deleteuserpower",
+        { key, id, account },
+        data => {
+          switch (data.service_code) {
+            case CONST.USERPOWER_DELETE:
+              Util.showTip(this, "success", "DELETE SUCCESSFULLY!");
+              if (this.table_data.length == 1 && this.table.current_page > 1) {
+                this.table.current_page--;
+              }
+              this.requestData();
+              break;
+            case CONST.USERPOWER_DELETE_FAILED:
+              Util.showTip(
+                this,
+                "warning",
+                "EDLETE ERROR!REFRESH YOUR WEBPAGE!"
+              );
+              break;
+            default:
+              this.table_data = [];
+              Util.showTip(this, "warning", "UNKNOW ERROR!");
+              break;
+          }
+        }
+      );
+    },
+    allUser() {
+      let key = this.$store.state.user.key;
+      Util.cRequest(this, "/users/allusers", { key }, data => {
         switch (data.service_code) {
-          case CONST.USERPOWER_DELETE:
-            Util.showTip(this, "success", "DELETE SUCCESSFULLY!");
-            this.requestData();
-            break;
-          case CONST.USERPOWER_DELETE_FAILED:
-            Util.showTip(
-              this,
-              "warning",
-              "EDLETE ERROR!REFRESH YOUR WEBPAGE!"
-            );
+          case CONST.USERS_ALL:
+            this.AddForm.users = data.result;
             break;
           default:
-            this.table_data = [];
-            Util.showTip(this, "warning", "UNKNOW ERROR!");
+            this.AddForm.users = [];
+            Util.showTip(this, "warning", "GET ALL USERS UNKNOW ERROR!");
             break;
         }
       });
     },
-    allUser() {
-      let key = this.$store.state.user.key;
-      Util.cRequest(
-        this,
-        "/users/allusers",
-        {key},
-        data => {
-          switch (data.service_code) {
-            case CONST.USERS_ALL:
-              this.AddForm.users = data.result;
-              break;
-            default:
-              this.AddForm.users = [];
-              Util.showTip(this, "warning", "GET ALL USERS UNKNOW ERROR!");
-              break;
-          }
-        }
-      );
-    },
     allPermission() {
       let key = this.$store.state.user.key;
-      Util.cRequest(
-        this,
-        "/users/allpermissions",
-        {key},
-        data => {
-          switch (data.service_code) {
-            case CONST.PERMISSIONS_ALL:
-              this.AddForm.permissions = data.result;
-              break;
-            default:
-              this.AddForm.permissions = [];
-              Util.showTip(this, "warning", "GET ALL PERMISSIONS UNKNOW ERROR!");
-              break;
-          }
+      Util.cRequest(this, "/users/allpermissions", { key }, data => {
+        switch (data.service_code) {
+          case CONST.PERMISSIONS_ALL:
+            this.AddForm.permissions = data.result;
+            break;
+          default:
+            this.AddForm.permissions = [];
+            Util.showTip(this, "warning", "GET ALL PERMISSIONS UNKNOW ERROR!");
+            break;
         }
-      );
+      });
     }
   },
-  mounted() {
-
-  },
+  mounted() {},
   created() {
     this.allUser();
     this.allPermission();

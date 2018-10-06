@@ -1,7 +1,7 @@
 <template>
     <div class="user-mag-wrap">
         <el-card  shadow="hover">
-            <el-button>新增</el-button>
+            <el-button @click="AddForm.visible = true">新增</el-button>
             <el-table
             :data="users_data"
             :default-sort = "{prop: 'name', order: 'descending'}"
@@ -65,6 +65,23 @@
               >
             </el-pagination>
         </el-card>
+        <el-dialog title="添加及修改管理员" :visible.sync="AddForm.visible" :width="'400px'">
+          <el-form  :model="AddForm" v-loading="AddForm.loading">
+            <el-form-item>
+              <el-input v-model="AddForm.name" auto-complete="off" placeholder="管理员姓名"></el-input>
+            </el-form-item>
+            <el-form-item>
+              <el-input v-model="AddForm.account" auto-complete="off" placeholder="管理员账号"></el-input>              
+            </el-form-item>
+            <el-form-item>
+              <el-input type="password" v-model="AddForm.password" auto-complete="off" placeholder="账号密码"></el-input>              
+            </el-form-item>
+          </el-form>
+          <div slot="footer" class="dialog-footer">
+            <el-button @click="AddForm.visible = false">取 消</el-button>
+            <el-button type="primary" @click="addUser">确 定</el-button>
+          </div>
+        </el-dialog>
     </div>    
 </template>
 <style lang="scss" scoped>
@@ -75,7 +92,7 @@
 <script>
 import CONST from "../assets/CONST";
 import Util from "../assets/Util";
-
+import Encryption from "../assets/Encryption"
 export default {
   name: "UserMag",
   data() {
@@ -98,6 +115,13 @@ export default {
         order: "ascending", //ascending or descending
         page_size: 5,
         current_page: 1
+      },
+      AddForm: {
+        visible: false,
+        name: "",
+        account: "",
+        password: "",
+        loading: false
       }
     };
   },
@@ -120,14 +144,40 @@ export default {
       let { current_page, order, page_size, prop } = this.table;
       let key = this.$store.state.user.key;
 
-      Util.cRequest(this, 
-      "/users/list", 
-      {current_page,order,page_size,prop,key }, 
-      data => {
+      Util.cRequest(
+        this,
+        "/users/list",
+        { current_page, order, page_size, prop, key },
+        data => {
+          switch (data.service_code) {
+            case CONST.USER_LIST:
+              this.users_data = data.result;
+              this.table.total = data.result[0] ? data.result[0].total : 0;
+              break;
+            default:
+              this.users_data = [];
+              Util.showTip(this, "warning", "UNKNOW ERROR!");
+              break;
+          }
+        }
+      );
+    },
+
+    changeAccountState(index, state) {
+      let key = this.$store.state.user.key;
+      let account = this.users_data[index].account;
+      Util.cRequest(this, "/users/banuser", { key, account, state }, data => {
         switch (data.service_code) {
-          case CONST.USER_LIST:
-            this.users_data = data.result;
-            this.table.total = data.result[0].total;
+          case CONST.USER_CHANGE_SATAE:
+            Util.showTip(this, "success", "CHANGE SUCCESSFULLY!");
+            this.requestData();
+            break;
+          case CONST.USER_CHANGE_SATAE_FAILED:
+            Util.showTip(
+              this,
+              "warning",
+              "NO PERMISSION TO BAN YOURSELF OR SOMETHING OTHER WRONG!"
+            );
             break;
           default:
             this.users_data = [];
@@ -136,27 +186,69 @@ export default {
         }
       });
     },
-
-    changeAccountState(index, state) {
+    addUser() {
+      this.AddForm.loading = true;
+      let { name, account, password} = this.AddForm;
       let key = this.$store.state.user.key;
-      let account = this.users_data[index].account;
-      Util.cRequest(this, "/users/banuser", { key, account, state }, 
-      data => {
-        switch (data.service_code) {
-          case CONST.USER_CHANGE_SATAE:
-            Util.showTip(this, "success", "CHANGE SUCCESSFULLY!");
-            this.requestData();
-            break;
-          case CONST.USER_CHANGE_SATAE_FAILED:
-            Util.showTip(this, "warning", "NO PERMISSION TO BAN YOURSELF OR SOMETHING OTHER WRONG!");
-            break;
-          default:
-            this.users_data = [];
-            Util.showTip(this, "warning", "UNKNOW ERROR!");
-            break;
+      if(!Util.checkAccount(account)) {
+        Util.showTip(this, "warning", "ERROR ACCOUNT!");
+        return;
+      }
+      if(name&&!Util.checkName(name)) {
+        Util.showTip(this, "warning", "ERROR NAME!");
+        return;
+      }else if(!name) {
+        name = CONST.NONE;
+      }
+      if(!password){
+        password = CONST.NONE;
+      }else if(!Util.checkPassword(password)){
+        Util.showTip(this, "warning", "PASSWORD:[/^[\w_-]{6,18}$/]!");
+        return;
+      }else{
+        password = Encryption.pwdEncrypt(password);
+      }
+      if(name==CONST.NONE && password==CONST.NONE) {
+        Util.showTip(this, "warning", "EDIT OR ADD PLEASE!");
+        return;
+      }
+      Util.cRequest(
+        this,
+        "/users/addmaguser",
+        { key, name, account, password },
+        data => {
+          this.AddForm.loading = false;
+          console.log(data.service_code);
+          switch (data.service_code) {
+            case CONST.USER_ADD:
+              Util.showTip(this, "success", "OPERATE SUCCESSFULLY!");
+              this.requestData();
+              this.AddForm.name = "";
+              this.AddForm.account = "";
+              this.AddForm.password = "";
+              break;
+            case CONST.USER_ADD_FAILED:
+              Util.showTip(
+                this,
+                "warning",
+                "PLEASE CHECK THE ID THAT MAY HAVE BEEN USED!"
+              );
+              break;
+            default:
+              this.table_data = [];
+              Util.showTip(this, "warning", "UNKNOW ERROR!");
+              break;
+          }
         }
-      });
-    }
+      );
+    },
+    updatePermission(index) {
+      let name = this.table_data[index].name;
+      let account = this.table_data[index].account;
+      this.AddForm.visible = true;
+      this.AddForm.name = name;
+      this.AddForm.account = account;
+    },
   },
   mounted() {},
   watch: {}
