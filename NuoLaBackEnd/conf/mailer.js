@@ -24,6 +24,19 @@ let mail_of_qq = {
         from: "謎_謎<470136090@qq.com>",
     }
 }
+let mail_of_aliyun = {
+    transporter: {
+        host: 'smtp.mxhichina.com',
+        port: 25,
+        auth: {
+            user: 'store@novel3d.com',
+            pass: 'Admin2018'
+        }
+    },
+    mail: {
+        from: "store<store@novel3d.com>",
+    }
+}
 
-module.exports.transporter = mail_of_qq.transporter;
-module.exports.mail = mail_of_qq.mail;
+module.exports.transporter = mail_of_aliyun.transporter;
+module.exports.mail = mail_of_aliyun.mail;

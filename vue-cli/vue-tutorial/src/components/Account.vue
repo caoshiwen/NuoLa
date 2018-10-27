@@ -12,7 +12,7 @@
   .wrap{
     width: 100%;
     height: 100%;
-    background-color: rgb(238,238,238);
+    // background-color: rgb(238,238,238);
   }
   .account {
     min-width: $MIN_WIDTH;
@@ -26,6 +26,8 @@
     }
   }
   .content {
+
+    
     // background-color: #fff;
     width: 70%;
     height: 100%;

@@ -6,7 +6,9 @@ Vue.use(Vuex);
 
 const store = new Vuex.Store({
   state: {
-    user: {},
+    user: localStorage.user?JSON.parse(localStorage.user):false||{},
+    types: null,
+    cart: -1
   },
   mutations: {
     changeUser(state, payload) {
@@ -16,7 +18,30 @@ const store = new Vuex.Store({
     },
     removeUser(state){
       state.user = {};
+      state.cart = [];
       Util.removeUserStorage();
+    },
+    changeTypes(state, payload) {
+      state.types = {...payload.types};
+    },
+    addCart(state) {
+      if(state.cart==-1){
+        state.cart =0;
+      }
+      state.cart++;
+    },
+    getCart(state, payload) {
+      state.cart = payload.cart;
+    },
+    delCart(state) {
+      if(state.cart==-1||state.cart==0){
+        state.cart = 0;
+      }else{
+        state.cart--;
+      }
+    },
+    delAllCart(state) {
+      state.cart = 0;
     }
   },
   getters:{
@@ -27,7 +52,7 @@ const store = new Vuex.Store({
         Util.removeUserStorage();
       }
       return state.user;
-    }
+    },
   } 
 });
 

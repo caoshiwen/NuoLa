@@ -1,6 +1,7 @@
 // 初始化样式 reset css
 html {font-size: 14px;height: 100%;}
-body,div,dl,dt,dd,ul,ol,li,h1,h2,h3,h4,h5,h6,pre,code,form,fieldset,legend,input,button,textarea,p,blockquote,th,td { margin:0; padding:0; }
+body,h1,h2,h3,h4,h5,h6{ margin:0; padding:0; }
+
 body { background:#fff; color:#000; font-size:14px; font-family: "PingFang SC","Helvetica Neue",Helvetica,"Hiragino Sans GB","Microsoft YaHei","微软雅黑",Arial,sans-serif; }
 body{min-height: 100%;position: relative;height: auto;padding-bottom: 110px;}
 td,th,caption { font-size:14px; }
@@ -24,12 +25,16 @@ table { border-collapse:collapse; }
 }
 
 body {
-    background: rgb(244,244,244);
+    // background: rgb(244,244,244);
 
+    background-color: rgb(238,238,238);
+}
+.cursor-pointer {
+    cursor: pointer;
 }
 
 
-$MAX_WIDTH:1220px;
+$MAX_WIDTH:1320px;
 $MIN_WIDTH:1150px;
 .common-control-width {
     min-width: $MIN_WIDTH;
@@ -54,6 +59,8 @@ input:-moz-placeholder {
     /* Firefox 18- */
     color: #ccc;
 }
+
+
 // .common-nav&.common-footer start
 
 .common-nav {
@@ -94,10 +101,15 @@ input:-moz-placeholder {
             top: 100%;
             left: 0;
             width: 100%;
-            padding-left: 10rem;
+
             background-color: #000;
 
             @extend .clearfix;
+        }
+        .nav-items-list-innerwrap {
+            padding: 0 10rem;
+            max-width: $MAX_WIDTH;
+            margin: 0 auto;
         }
         .nav-items-list-block {
             float: left;

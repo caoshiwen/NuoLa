@@ -1,15 +1,16 @@
 let $dao = require("./Dao"),
     $uresp = require("../service/resp/UserResp"),
     $util = require("../util/Util"),
-    moment = require("moment"),
-    {
-        send,
-        SUBJECT,
-        TEXT
-    } = require("../service/mailer/mailer"),
-    {
-        decryptRsa
-    } = require("../util/Encryption");
+    $CONST = require("../util/CONST")
+moment = require("moment"), {
+    send,
+    SUBJECT,
+    TEXT
+} = require("../service/mailer/mailer"), {
+    decryptRsa,
+    encryptKey,
+    SCRIPT
+} = require("../util/Encryption");
 
 const sqls = {
     insertUser: 'INSERT INTO user_keys(user_id, user_name, user_email, user_password) VALUES(?,?,?,?)',
@@ -31,7 +32,36 @@ const sqls = {
     //add email get code record
     insertMailRecord: 'INSERT INTO mail_activation(mail,mail_key) VALUE (?,?) ON DUPLICATE KEY UPDATE mail_key = ?',
     queryMailRecord: 'select * from mail_activation where mail = ? and mail_key = ? and mail not in (select user_email from user_keys)',
-    //update
+    //account address
+    addressList: `select a_id id,a_name name,a_phone phone, a_street_address street_address,
+        a_label label, a_city city, a_country country, a_state state, a_postal_code postal_code
+        from address where u_id = ? `,
+    addressDel: `delete from address where a_id = ? and u_id = ? `,
+    addressAdd: `insert into address(
+    a_id,
+    a_label,
+    a_name,
+    a_phone,
+    a_city,
+    a_state,
+    a_country,
+    a_postal_code,
+    a_street_address,
+    u_id
+    ) VALUES(?,?,?,?,?,?,?,?,?,?)`,
+    addressUpdate: `
+        update address set 
+        a_label = ?, a_name = ?, a_phone = ?, a_city = ?, a_state = ?, a_country = ?,
+        a_postal_code = ?, a_street_address = ?
+        where u_id = ? and a_id = ?
+    `,
+    queryAddressDefault: `select user_address address from user_keys where user_id = ? `,
+    queryAddressById: `
+        select a_label label, a_name name, a_phone phone, a_street_address street_address, 
+        a_city city, a_country country, a_state state, a_postal_code postal_code
+        from address where a_id = ? and u_id = ?
+    `,
+    updateAddressDefault: `update user_keys set user_address = ? where user_id = ? `,
 
 }
 
@@ -39,6 +69,7 @@ const sqls = {
 // dateInit();
 
 module.exports = {
+    rsa,
     add,
     queryById,
     login,
@@ -46,8 +77,18 @@ module.exports = {
     getActivateMailCode,
     checkMailForUpdate,
     updateUser,
-    checkLogin
+    checkLogin,
+    addressList,
+    addressDel,
+    addressAdd,
+    addressEdit,
+    setAddressDefault
 };
+
+function rsa(req, res, next) {
+    let rsa = encryptKey(SCRIPT);
+    $uresp.resp($CONST.RSA, req, res, null, rsa);
+}
 /**
  * register
  */
@@ -63,29 +104,30 @@ function add(req, res, next) {
     password = decryptRsa(password);
     mail_code = decryptRsa(mail_code);
     let id = $util.creatUserId();
-    checkActivateMailCode(req, mail_code, email, () =>{
+    checkActivateMailCode(req, mail_code, email, () => {
         $dao.doQuery(sqls.insertUser, [id, name, email, password], (err, result) => {
-            if(result.affectedRows == 1) {
+            if (result.affectedRows == 1) {
                 result = [{
                     user_id: id,
                     user_email: email,
                     user_name: name,
                 }];
                 login(req, res, next);
-            }else{
+            } else {
                 $uresp.resp($uresp.CODE.USER_REGISTER, req, res, err, []);
             }
         });
-    },()=>{
+    }, () => {
         $uresp.resp($uresp.CODE.USER_REGISTER_CODE_WRONG, req, res, null, null);
     });
-    
+
 }
+
 function checkActivateMailCode(req, mail_code, email, succeed, failed) {
     $dao.doQuery(sqls.queryMailRecord, [email, mail_code], (err, result) => {
-        if(result[0]){
+        if (result[0]) {
             succeed(result[0]);
-        }else{
+        } else {
             failed();
         }
     });
@@ -109,31 +151,31 @@ function login(req, res, next) {
     } = req.body;
     email = decryptRsa(email);
     password = decryptRsa(password);
-    if(!($util.checkEmail(email) && $util.checkPwd(password))){
+    if (!($util.checkEmail(email) && $util.checkPwd(password))) {
         $uresp.resp($uresp.CODE.USER_LOGIN, req, res, err, []);
     }
     //check email an pwd
     $dao.doQuery(sqls.queryByEmailAndPwd, [email, password], (err, result) => {
-        if(result.length > 0){
+        if (result.length > 0) {
             let id = result[0].user_id;
             let key = $util.creatLoginKey(id);
             //add loginrecord
-            $dao.doQuery(sqls.addLoginRecord,[id, key], (_err,_result) => {
-                if(!_result.affectedRows){
+            $dao.doQuery(sqls.addLoginRecord, [id, key], (_err, _result) => {
+                if (!_result.affectedRows) {
                     $uresp.resp($uresp.CODE.USER_LOGIN, req, res, err, []);
-                }else{
+                } else {
                     //update user login_key
-                    $dao.doQuery(sqls.updateUserLoginKey,[key,id],(__err, __result) => {
-                        if(!_result.affectedRows){
+                    $dao.doQuery(sqls.updateUserLoginKey, [key, id], (__err, __result) => {
+                        if (!_result.affectedRows) {
                             result = [];
-                        }else{
+                        } else {
                             result[0].login_key = key;
                         }
                         $uresp.resp($uresp.CODE.USER_LOGIN, req, res, err, result);
                     });
                 }
             });
-        }else{
+        } else {
             $uresp.resp($uresp.CODE.USER_LOGIN, req, res, err, result);
         }
     });
@@ -156,10 +198,10 @@ function getActivateMailCode(req, res, next) {
     console.log(mail_time);
     // 检验邮箱
     $dao.doQuery(sqls.queryEmailForCheckMail, [mail_time, email, email], (err, result) => {
-        if(result.length > 0) {
+        if (result.length > 0) {
             $uresp.resp($uresp.CODE.USER_CHECK_EMAIL_ONLY, req, res, err, result);
         } else {
-            let code = Math.ceil(Math.random()*1000000);
+            let code = Math.ceil(Math.random() * 1000000);
             var mail = {
                 // 主题
                 subject: SUBJECT.getActivateCode,
@@ -170,9 +212,12 @@ function getActivateMailCode(req, res, next) {
             };
             send(mail, info => {
                 // send succeed
-                $dao.doQuery(sqls.insertMailRecord,[email,code,code],(err, _result) =>{
+                $dao.doQuery(sqls.insertMailRecord, [email, code, code], (err, _result) => {
                     // console.log(_result);
-                    $uresp.resp($uresp.CODE.USER_GET_MAIL_ACTIVATE_CODE, req, res, null, {code,email});
+                    $uresp.resp($uresp.CODE.USER_GET_MAIL_ACTIVATE_CODE, req, res, null, {
+                        code,
+                        email
+                    });
                 });
             }, error => {
                 // send failed
@@ -195,51 +240,180 @@ function updateUser(req, res, next) {
         email,
         password,
         mail_code,
-        key,
-        id
     } = req.body;
 
-    key = decryptRsa(key);
-    id = decryptRsa(id);
 
-    checkLogin(req, res, next, id, key, (user) => {
-        name = name ? decryptRsa(name): user.user_name;
-        email = email ? decryptRsa(email): user.user_email;
-        password = password ? decryptRsa(password): user.user_password;
-        mail_code = mail_code ? decryptRsa(mail_code): null;
+    checkLogin(req, res, next, (user) => {
+        name = name ? decryptRsa(name) : user.user_name;
+        email = email ? decryptRsa(email) : user.user_email;
+        password = password ? decryptRsa(password) : user.user_password;
+        mail_code = mail_code ? decryptRsa(mail_code) : null;
         let sql_code = mail_code ? `MAIL IN (SELECT MAIL FROM MAIL_ACTIVATION WHERE MAIL_KEY = '${mail_code}') AND` : ""
         let sql = `UPDATE USER_KEYS SET USER_NAME = '${name}', USER_EMAIL = '${email}', USER_PASSWORD = '${password}' 
         WHERE ${sql_code} USER_ID = '${id}' AND LOGIN_KEY = '${key}'`;
         $dao.doQuery(sql, [], (err, result) => {
-            if(result.affectedRows) {
+            if (result.affectedRows) {
                 //update success
                 let _user = {};
                 _user.user_email = email;
                 _user.user_name = name;
                 $uresp.resp($uresp.CODE.USER_UPDATE, req, res, err, [_user]);
-            }else{
+            } else {
                 //update failed
                 $uresp.resp($uresp.CODE.USER_UPDATE, req, res, err, []);
             }
         });
     });
-    
+
 }
 /**
  *check login
  * @param {*} req
  * @param {*} res
  * @param {*} next
- * @param {*} id
- * @param {*} key
  * @param {*} succeed
  */
-function checkLogin(req, res, next, id, key, succeed) {
-    $dao.doQuery(sqls.queryUserLogin, [id,key], (err, result) => {
-        if(result.length > 0) {
+function checkLogin(req, res, next, succeed) {
+    let {
+        id,
+        key
+    } = req.body;
+    id = decryptRsa(id);
+    key = decryptRsa(key);
+    $dao.doQuery(sqls.queryUserLogin, [id, key], (err, result) => {
+        if (result.length > 0) {
             succeed(result[0]);
-        }else{
+        } else {
             $uresp.resp($uresp.CODE.USER_LOGIN_STATE_NONE, req, res, null, []);
         }
+    });
+}
+
+
+function addressList(req, res, next) {
+    let {
+        id
+    } = req.body;
+    checkLogin(req, res, next, (user) => {
+        id = decryptRsa(id);
+        $dao.doQuery(sqls.addressList, [id], (err, result) => {
+            if (result && result.length >= 0) {
+                $uresp.resp($uresp.CODE.USER_ADDRESS, req, res, err, result);
+            } else {
+                $uresp.resp("", req, res, err, undefined);
+            }
+        });
+    });
+}
+
+
+function addressDel(req, res, next) {
+    let {
+        a_id,
+    } = req.body;
+    checkLogin(req, res, next, (user) => {
+        a_id = decryptRsa(a_id);
+        $dao.doQuery(sqls.addressDel, [a_id, user.user_id], (err, result) => {
+            if (result) {
+                $uresp.resp($uresp.CODE.USER_ADDRESS_DEL, req, res, err, result);
+            } else {
+                $uresp.resp("", req, res, err, undefined);
+            }
+        });
+    });
+}
+
+function addressAdd(req, res, next) {
+    checkLogin(req, res, next, (user) => {
+        let {
+            label,
+            name,
+            phone,
+            city,
+            state,
+            country,
+            postal_code,
+            street_address
+        } = req.body;
+
+        label = decryptRsa(label),
+            name = decryptRsa(name),
+            phone = decryptRsa(phone),
+            city = decryptRsa(city),
+            state = decryptRsa(state),
+            country = decryptRsa(country),
+            postal_code = decryptRsa(postal_code),
+            street_address = decryptRsa(street_address);
+
+        $dao.doQuery(sqls.addressAdd, [$util.creatAddressId(), label, name, phone, city, state, country, postal_code, street_address, user.user_id], (err, result) => {
+            if (result) {
+                $uresp.resp($uresp.CODE.USER_ADDRESS_ADD, req, res, err, result);
+            } else {
+                $uresp.resp("", req, res, err, undefined);
+            }
+        });
+
+    })
+
+}
+
+function addressEdit(req, res, next) {
+    checkLogin(req, res, next, (user) => {
+        let {
+            a_id,
+            label,
+            name,
+            phone,
+            city,
+            state,
+            country,
+            postal_code,
+            street_address
+        } = req.body;
+        a_id = decryptRsa(a_id),
+            label = decryptRsa(label),
+            name = decryptRsa(name),
+            phone = decryptRsa(phone),
+            city = decryptRsa(city),
+            state = decryptRsa(state),
+            country = decryptRsa(country),
+            postal_code = decryptRsa(postal_code),
+            street_address = decryptRsa(street_address);
+
+        $dao.doQuery(sqls.addressUpdate, [label, name, phone, city, state, country, postal_code, street_address, user.user_id, a_id], (err, result) => {
+            if (result) {
+                $uresp.resp($uresp.CODE.USER_ADDRESS_EDIT, req, res, err, result);
+            } else {
+                $uresp.resp("", req, res, err, undefined);
+            }
+        });
+
+    })
+}
+
+function setAddressDefault(req, res, next) {
+    checkLogin(req, res, next, (user) => {
+        let {
+            aid
+        } = req.body;
+        aid = decryptRsa(aid);
+        $dao.doQuery(sqls.queryAddressById, [aid, user.user_id], (err, result) => {
+            if (result) {
+                let obj = {};
+                let s = "";
+                try {
+                    obj = result[0];
+                    s = JSON.stringify(obj);
+                } catch (error) {
+                    $uresp.resp("", req, res, err, []);
+                    return;
+                }
+                $dao.doQuery(sqls.updateAddressDefault, [s,user.user_id], (err, _result) => {
+                    $uresp.resp($uresp.CODE.USER_ADDRESS_DEFAULT, req, res, err, _result);
+                });
+            } else {
+                $uresp.resp("", req, res, err, []);
+            }
+        });
     });
 }

@@ -7,6 +7,7 @@ export default {
   checkLoginState,
   showTip,
   noLogonStatusCallBack,
+  getHash
 }
 
 
@@ -24,7 +25,10 @@ function removeUserStorage() {
   localStorage.removeItem("user");
 }
 
-function checkLoginState() {
+function checkLoginState(_app) {
+  if(!store.state.user.name&&_app){
+    showTip(_app, 'warning', 'PLEASE LOGIN FIRST!')
+  }
   return store.state.user.name;
 }
 
@@ -45,4 +49,8 @@ function noLogonStatusCallBack(_this) {
   _this.$store.commit("removeUser");
   _this.$router.push("/home");
   showTip(_this, "warning", "YOUR LOGON STATUS EXPIRED! PLEASE LOGIN AGAIN!");
+}
+
+function getHash() {
+  return location.hash;
 }

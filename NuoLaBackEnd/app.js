@@ -5,16 +5,18 @@ var cookieParser = require('cookie-parser');
 var logger = require('morgan');
 var bodyparser = require('body-parser');
 var session  = require('express-session');
-// var history = require('connect-history-api-fallback');//express vue-router history
+var history = require('connect-history-api-fallback');//express vue-router history
 // var ecstatic = require('ecstatic');
 var indexRouter = require('./routes/index');
 var usersRouter = require('./routes/users');
-
+var productRouter = require('./routes/product');
+var cartRouter = require('./routes/cart');
+var orderRouter = require('./routes/order');
 var app = express();
 // Access-Control-Allow-Origin.
 app.all('*', function(req, res, next) {
-  res.header("Access-Control-Allow-Origin", "*");
-  res.header("Access-Control-Allow-Headers", "X-Requested-With");
+  res.header("Access-Control-Allow-Origin", "http://localhost:8080");
+  res.header("Access-Control-Allow-Headers", "Origin, X-Requested-With, Content-Type, Accept");
   res.header("Access-Control-Allow-Methods","PUT,POST,GET,DELETE,OPTIONS");
   res.header("X-Powered-By",' 3.2.1')
   res.header("Content-Type", "application/json;charset=utf-8");
@@ -41,14 +43,49 @@ app.use(session({
   saveUninitialized: true,// save initalized
   cookie: {
     maxAge: 1000*60*3, //set session time
-  },
+  }
 }));
 
 
-// app.use(history())
-app.use(express.static(path.join(__dirname, 'public')));
 app.use('/', indexRouter);
 app.use('/users', usersRouter);
+app.use('/product', productRouter);
+app.use('/cart', cartRouter);
+app.use('/order', orderRouter);
+app.use(history({
+  rewrites: [
+    {
+      from: /^\/RuoLa\/.*$/,
+      to: function(context) {
+        console.log(1,context.parsedUrl.pathname)
+        return context.parsedUrl.pathname;
+      }
+    },
+    {
+      from: /^\/source\/.*$/,
+      to: function(context) {
+        console.log(2,context.parsedUrl.pathname)
+        return context.parsedUrl.pathname;
+      }
+    },
+    {
+      from: /^\/.*[js|css]$/,
+      to: function(context) {
+        console.log(3,context.parsedUrl.pathname)
+        return '/RuoLa/'+context.parsedUrl.pathname;
+      }
+    },
+    {
+      from: /^\/.*$/,
+      to: function(context) {
+        console.log(4,context.parsedUrl.pathname)
+        return '/RuoLa/';
+      }
+    },
+
+  ]
+}))
+app.use(express.static(path.join(__dirname, 'public')));
 
 // catch 404 and forward to error handler
 app.use(function(req, res, next) {

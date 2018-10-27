@@ -169,20 +169,6 @@ export default {
       }
     }
   },
-  mounted() {
-    this.$http
-      .get(`${CONST.HOST}/users/rsa`, {}, CONST.SESSION_CONFIG_CROS)
-      .then(res => {
-        let {
-          data:{
-            rsa
-          }
-        } = res;
-        sessionStorage.rsa = JSON.stringify(rsa);
-      })
-      .catch(err => {
-        Util.showTip(this, "warning", "UNKNOW ERROR!");
-      });
-  }
+
 };
 </script>

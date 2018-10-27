@@ -2,7 +2,7 @@
     <div class='ipt-type-one'>
         <label :for='Input.id'>
             <span class='placeholder' :class='{active: isActive}'>{{Input.placeholder}}</span>
-            <input class='input' :id='Input.id' :name='Input.name' :type='Input.type' :maxlength='Input.maxlength' v-model='Input.value'  @focus.prevent='iptFocusOn' @blur='iptFocusOut'>
+            <input autocomplete="off" class='input' :id='Input.id' :name='Input.name' :type='Input.type' :maxlength='Input.maxlength' v-model='Input.value'  @focus.prevent='iptFocusOn' @blur='iptFocusOut'>
         </label>
     </div>
 </template>

@@ -1,16 +1,19 @@
 <template>
         <nav id="nav" class="common-nav" @mouseleave="navMouseOutFn">
+        <span style="display: none;">{{typesChage}}</span>
         <div class="nav-innerwrap">
             <div class="nav-left">
                 <div class="nav-logo"></div>
                 <div class="nav-items">
-                    <span class="nav-items-title" :style="{color:children.nowc}" v-for="(children,key) in items" @mouseover="navItemsShow(key)" :key="key">{{key}}</span>
+                    <span class="nav-items-title cursor-pointer" :style="{color:children.nowc}" v-for="(children,key) in items" @mouseover="navItemsShow(key)" :key="key">{{key}}</span>
                     <transition name="ts-fade" v-for="(children,key) in items" :key="key">
                         <div class="nav-items-list" v-show="key==show_items_list">
+                          <div class="nav-items-list-innerwrap">
                             <div class="nav-items-list-block" v-for="(child,ke) in children.v" :key="ke">
-                                <a :href="children.url+ke" class="nav-items-list-block-title" :style="{color:children.c}">{{ke}}</a>
-                                <a :href="children.url+chil" class="nav-items-list-block-item" v-for="chil in child" :key="chil">{{chil}}</a>
+                                <router-link tag="a" :to="children.url+ke" class="nav-items-list-block-title" :style="{color:children.c}" style="">{{ke}}</router-link>
+                                <router-link  tag="a" :to="children.url+ke+`/`+chil" class="nav-items-list-block-item" v-for="chil in child" :key="chil">{{chil}}</router-link >
                             </div>
+                          </div>
                         </div>
                     </transition>
                 </div>
@@ -19,17 +22,18 @@
                 <!-- <span style="display: none;">{{UserObject}}</span> -->
                 <template v-if="$store.state.user.name">
                     <span class="nav-right-btn">{{hi}},{{$store.state.user.name}}</span>
-                    <a class="nav-right-btn" :href="account.url">{{account.word}}</a>
+                    <router-link tag="a" :to="account.url" class="nav-right-btn" >{{account.word}}</router-link>
                     <a class="nav-right-btn" href="javascript:void(0);" @click="logoutFn">{{logout.word}}</a>
+                    <router-link tag="a" :to="goods_url" class="nav-right-btn" >
+                    <span class="el-icon-goods"></span>
+                    ({{cart==-1?0:cart}})
+                </router-link>
                 </template>
                 <template v-else>
                     <a class="nav-right-btn" href="javascript:void(0);" @click="showLogin">{{login.word}}</a>
                     <a class="nav-right-btn" href="javascript:void(0);" @click="register.show = true">{{register.word}}</a>
                 </template>
-                <a class="nav-right-btn" :href="goods_url">
-                    <span class="el-icon-goods"></span>
-                    ({{cart_goods}})
-                </a>
+
             </div>
         </div>
         <div class="common-login-block" v-loading="login.loading">
@@ -42,7 +46,7 @@
                             <input class="password ipt" name="password" id="password" type="password" :placeholder="password.placeholder" maxlength="18"
                                 v-model="password.value">
                             <p class="forget-pwd-tip">{{forget.tip}}
-                                <a class="forget-pwd-click" :href="forget.url"> {{forget.word}} </a>.</p>
+                                <a class="forget-pwd-click" href="javascript:void(0);" @click="$router.push(forget.url)"> {{forget.word}} </a>.</p>
                             <button class="login" type="submit" :disabled="loginDisable" @click.prevent="loginFN">{{login.word}}</button>
                         </form>
                         <a class="close" href="javascript:void(0);" @click="show_login = false">{{close}}</a>
@@ -83,6 +87,7 @@
 </template>
 
 <style lang="scss" scoped>
+
 </style>
 
 <script>
@@ -99,55 +104,26 @@ export default {
     return {
       items: {
         SHOP: {
-          url: "#",
-          v: {
-            CLOTHING: [
-              "Legging",
-              "Yoga Leggings",
-              "Capris",
-              "Yoga Capris",
-              "Shorts"
-            ],
-            "PILLOW CASES": [
-              '18" x 18" Pillow Case',
-              '22" x 22" Pillow Case',
-              '24" x 24" Pillow Case',
-              '20" x 24" Pillow Case'
-            ]
-          },
+          url: "/shop/",
+          v: {},
           c: "#ec407a",
           nowc: "#fff"
         },
         CREATE: {
-          url: "#",
-          v: {
-            CLOTHING: [
-              "Legging",
-              "Yoga Leggings",
-              "Capris",
-              "Yoga Capris",
-              "Shorts"
-            ],
-            "PILLOW CASES": [
-              '18" x 18" Pillow Case',
-              '22" x 22" Pillow Case',
-              '24" x 24" Pillow Case',
-              '20" x 24" Pillow Case'
-            ]
-          },
+          url: "/create/",
+          v: {},
           c: "#1e88e5",
           nowc: "#fff"
         }
       },
       show_items_list: "",
       common_c: "#fff",
-      cart_goods: 0,
       hi: "Hi",
       account: {
-        url: "/#/account/info",
+        url: "/account/info",
         word: "MY ACCOUNT"
       },
-      goods_url: "#",
+      goods_url: "/cart",
       show_login: false,
       login_tip: "Login with your email",
       email: {
@@ -169,7 +145,7 @@ export default {
         loading: false
       },
       logout: {
-        word: "LOGOUT",
+        word: "LOGOUT"
       },
       close: "CLOSE",
       user_storage: Util.getUserStorage(), //监听Storage 变化的中间值
@@ -210,22 +186,22 @@ export default {
     };
   },
   created() {
-    if(Util.getUserStorage()){
+    if (Util.getUserStorage()) {
       let user = JSON.parse(Util.getUserStorage());
       this.$store.commit({ type: "changeUser", user });
     }
   },
   methods: {
-    showLoginLoading(){
+    showLoginLoading() {
       this.login.loading = true;
     },
-    hideLoginLoading(){
+    hideLoginLoading() {
       this.login.loading = false;
     },
-    showRegisterLoading(){
+    showRegisterLoading() {
       this.register.loading = true;
     },
-    hideRegisterLoading(){
+    hideRegisterLoading() {
       this.register.loading = false;
     },
     navItemsShow: function(key) {
@@ -259,7 +235,9 @@ export default {
           })
           .then(response => {
             this.hideLoginLoading();
-            let { data: { result, service_code } } = response;
+            let {
+              data: { result, service_code }
+            } = response;
             result = JSON.parse(decryptRsa(result));
             service_code = decryptRsa(service_code);
             if (result.length > 0) {
@@ -275,6 +253,7 @@ export default {
               });
               // this.user_storage = Util.setUserStorage(JSON.stringify(_user));
               // this.user = _user;
+              this.getCart();
               this.show_login = false;
               this.$message({
                 message: `Hi, ${_user.name}.Welcome to Log on.`,
@@ -337,7 +316,9 @@ export default {
           })
           .then(response => {
             this.hideRegisterLoading();
-            let { data: { result, service_code } } = response;
+            let {
+              data: { result, service_code }
+            } = response;
             result = JSON.parse(decryptRsa(result));
             service_code = decryptRsa(service_code);
             if (result.length > 0) {
@@ -384,6 +365,7 @@ export default {
             msg += "Wrong code!";
             break;
         }
+        this.hideRegisterLoading();
         this.$message({
           message: msg,
           type: "warning"
@@ -419,7 +401,9 @@ export default {
           })
           .then(response => {
             this.hideRegisterLoading();
-            let { data: { result, service_code, service_msg } } = response;
+            let {
+              data: { result, service_code, service_msg }
+            } = response;
             result = decryptRsa(result);
             service_code = decryptRsa(service_code);
             service_msg = decryptRsa(service_msg);
@@ -451,6 +435,85 @@ export default {
           type: "warning"
         });
       }
+    },
+    getTypes(){
+      if (this.$store.state.types) {
+        return;
+      }
+      this.$http
+      .post(CONST.HOST + "/product/types", {})
+      .then(response => {
+        let {
+          data: { result, service_code }
+        } = response;
+        result = JSON.parse(decryptRsa(result));
+        service_code = decryptRsa(service_code);
+        if (result.length > 0) {
+          this.$store.commit("changeTypes",{types:result});
+          this.$store.state.types = result;
+        } else {
+          this.$message({
+            message: `SOME ERROR!`,
+            type: "warning"
+          });
+        }
+      })
+      .catch(error => {
+        console.error(error);
+      });
+    },
+    getTypesArray: function() {
+      let r = {};
+      let types = this.$store.state.types;
+      for (const key in types) {
+        if (types.hasOwnProperty(key)) {
+          const element = types[key];
+          if (!r.hasOwnProperty(element.type)) {
+            r[element.type] = [];
+          }
+          r[element.type].push(element.name);
+        }
+      }
+      this.items.SHOP.v = r;
+      this.items.CREATE.v = r;
+      return r;
+    },
+    getCart() {
+      let user = this.$store.state.user;
+      if(!user||!user.key){
+        return;
+      }
+        this.$http
+        .post(CONST.HOST + "/cart/num", {
+          id: Rsa.encryptRsa(this.$store.state.user.id),
+          key: Rsa.encryptRsa(this.$store.state.user.key)
+        })
+        .then(response => {
+          let {
+            data: { result, service_code, service_msg }
+          } = response;
+          result = JSON.parse(Rsa.decryptRsa(result));
+          service_code = Rsa.decryptRsa(service_code);
+          service_msg = Rsa.decryptRsa(service_msg);
+          switch (service_code + "") {
+            case CONST.CART_NUM:
+              this.$store.commit("getCart",{cart:result[0].num});
+              break;
+            case CONST.USER_LOGIN_STATE_NONE:
+              Util.noLogonStatusCallBack(this);
+              break;
+            default:
+              this.$message({
+                type: "warning",
+                message: "SOMETHING WRONG!"
+              });
+              break; //send error
+          }
+        })
+        .catch(error => {
+          console.error(error);
+        });
+    
     }
   },
   computed: {
@@ -460,7 +523,6 @@ export default {
       return false;
     },
     UserObject: function() {
-      console.log(1);
       // if (this.user_storage && this.user_storage === Util.getUserStorage()) {
       let _user = JSON.parse(Util.getUserStorage());
       this.$store.commit({ type: "changeUser", user: _user });
@@ -488,6 +550,22 @@ export default {
         this.setMailCodeInterval();
       }
       return this.register.email_code.click.local_last_click;
+    },
+    typesChage() {
+      this.getTypesArray();
+      return this.$store.state.types;
+    },
+    cart() {
+      return this.$store.state.cart;
+    }
+  },
+  watch: {
+    
+  },
+  mounted() {
+    this.getTypes();
+    if(this.$store.state.cart==-1) {
+      this.getCart();
     }
   }
 };

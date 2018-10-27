@@ -10,7 +10,7 @@ module.exports = {
  * do query
  * @param {String} sql
  * @param {Array} params
- * @param {Function} callback
+ * @param {Function} callback(@param err, @param result)
  */
 function doQuery(sql, params, callback) {
     pool.getConnection(function(err, connection) {

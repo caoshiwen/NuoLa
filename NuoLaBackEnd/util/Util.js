@@ -5,7 +5,11 @@ module.exports = {
     checkPwd,
     getUUID,
     creatLoginKey,
-    creatUserId
+    creatUserId,
+    creatCartId,
+    creatAddressId,
+    getLimit,
+    creatOrderId
 }
 
 
@@ -50,5 +54,28 @@ function creatLoginKey(id) {
 
 function creatUserId() {
     return new Date().getTime() + getUUID();
+}
+
+function creatCartId() {
+    return new Date().getTime() + getUUID();
+}
+function creatAddressId() {
+    return new Date().getTime() + getUUID();
+}
+function creatOrderId() {
+    return new Date().getTime() + getUUID();
+}
+
+
+/**
+ * 
+ * @param {string} num
+ * @param {string} size
+ * @returns 'limit pagestart,pageend' 
+ */
+function getLimit(num, size) {
+    num = parseInt(num);
+    size = parseInt(size);
+    return ` limit ${(num-1)*size},${size}`;
 }
 

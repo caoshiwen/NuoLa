@@ -6,6 +6,7 @@ import VueResource from 'vue-resource'
 import router from "./router/index.js"
 import ElementUI from 'element-ui'
 import 'element-ui/lib/theme-chalk/index.css'
+import './assets/scss/PingFang.ttf'
 import './assets/scss/common.scss'
 
 import App from './App'
@@ -16,7 +17,11 @@ Vue.use(VueResource)
 Vue.use(ElementUI)
 Vue.use(Vuex)
 
-
+router.afterEach((to, from) => {
+  if (to.meta.title) {
+    document.title = to.meta.title;
+  }
+})
 /* eslint-disable no-new */
 new Vue({
   el: '#app',

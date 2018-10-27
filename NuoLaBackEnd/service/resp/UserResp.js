@@ -1,16 +1,6 @@
 
 
-const CODE = {
-    USER_REGISTER: "101",
-    USER_LOGIN: "102",
-    USER_LOGOUT: "103",
-    USER_QUERY_BY_ID: "104",
-    USER_GET_MAIL_ACTIVATE_CODE: "105",//get code success
-    USER_CHECK_EMAIL_ONLY:"106",//response email not only
-    USER_REGISTER_CODE_WRONG: "107",//code wrong
-    USER_LOGIN_STATE_NONE: "1024",//no login
-    USER_UPDATE: "108",
-};
+const CODE = require("../../util/CONST");
 let {
     encryptRsa
 } = require("../../util/Encryption");
@@ -30,6 +20,9 @@ function resp(resp_code, req, res, err, result) {
     };
     //resp_code == CODE.USER_QUERY_BY_ID
     switch (resp_code) {
+        case CODE.RSA:
+            send_result = rsa(result)
+            break;
         case CODE.USER_REGISTER:
             send_result = register(res, err, result);
             break;
@@ -56,6 +49,21 @@ function resp(resp_code, req, res, err, result) {
         case CODE.USER_UPDATE:
             send_result = update(result);
             break;
+        case CODE.USER_ADDRESS:
+            send_result = addressList(result);
+            break;
+        case CODE.USER_ADDRESS_DEL:
+            send_result = addressDel(result);
+            break;
+        case CODE.USER_ADDRESS_ADD:
+            send_result = addressAdd(result);
+            break;
+        case CODE.USER_ADDRESS_EDIT:
+            send_result = addressEdit(result);
+            break;
+        case CODE.USER_ADDRESS_DEFAULT: 
+            send_result = setAddressDefault(result);
+            break;
     }
 
     if (typeof result === 'undefined') {
@@ -69,6 +77,11 @@ function resp(resp_code, req, res, err, result) {
         res.json(send_result);
     }
 
+}
+function rsa(rsa) {
+    return {
+        rsa
+    }
 }
 // register
 function register(res, err, result) {
@@ -114,4 +127,22 @@ function checkEmailOnly(result) {
 //update
 function update(result) {
     return getResponseForUser(result, CODE.USER_UPDATE, "USER_UPDATE");
+}
+
+function addressList(result) {
+    return getResponseForUser(result, CODE.USER_ADDRESS, "USER_ADDRESS");
+}
+
+function addressDel(result) {
+    return getResponseForUser(result, CODE.USER_ADDRESS_DEL, "USER_ADDRESS_DEL");
+}
+function addressAdd(result) {
+    return getResponseForUser(result, CODE.USER_ADDRESS_ADD, "USER_ADDRESS_ADD");
+}
+function addressEdit(result) {
+    return getResponseForUser(result, CODE.USER_ADDRESS_EDIT, "USER_ADDRESS_EDIT");
+}
+
+function setAddressDefault(result) {
+    return getResponseForUser(result, CODE.USER_ADDRESS_DEFAULT, "USER_ADDRESS_DEFAULT");
 }

@@ -2,7 +2,10 @@ var express = require('express');
 var router = express.Router();
 var UserDao = require("../daos/UserDao");
 var Util = require("../util/Util");
-
+router.get('/rsa', function(req, res, next) {
+  console.log("get /rsa");
+  UserDao.rsa(req, res, next);
+});
 // /* GET users listing. */
 // router.get('/', function(req, res, next) {
 //   res.send('respond with a resource');
@@ -36,5 +39,20 @@ router.get("/checkmail",(req, res, next) => {
 router.post("/update",(req, res, next) => {
   UserDao.updateUser(req, res, next);
 });
-
+/* ADDRESS*/
+router.post("/address/list",(req, res, next) => {
+  UserDao.addressList(req, res, next);
+});
+router.post("/address/del",(req, res, next)=>{
+  UserDao.addressDel(req, res, next);
+});
+router.post("/address/add",(req, res, next)=>{
+  UserDao.addressAdd(req, res, next);
+});
+router.post("/address/edit",(req, res, next)=>{
+  UserDao.addressEdit(req, res, next);
+});
+router.post("/address/default",(req, res, next)=>{
+  UserDao.setAddressDefault(req, res, next);
+});
 module.exports = router;

@@ -30,6 +30,9 @@ export default {
 }
 
 function aesEncrypt(data) {
+    if(!sessionStorage.rsa) {
+        location.reload();
+    }
     const key = decryptKey(JSON.parse(sessionStorage.rsa));
     const cipher = crypto.createCipher('aes192', key);
     var crypted = cipher.update(data, 'utf8', 'hex');
@@ -38,6 +41,9 @@ function aesEncrypt(data) {
 }
 
 function aesDecrypt(encrypted) {
+    if(!sessionStorage.rsa) {
+        location.reload();
+    }
     const key = decryptKey(JSON.parse(sessionStorage.rsa));
     const decipher = crypto.createDecipher('aes192', key);
     var decrypted = decipher.update(encrypted, 'hex', 'utf8');
